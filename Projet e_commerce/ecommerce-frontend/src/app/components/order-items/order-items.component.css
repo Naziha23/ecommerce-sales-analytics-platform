@@ -1,0 +1,33 @@
+@import '../products/products.component.css';
+
+.subtitle {
+  color: #6b7280;
+  font-size: 0.875rem;
+  margin: 0.25rem 0 0 0;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.filter-box {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.filter-input {
+  width: 180px;
+}
+
+.badge-order {
+  background-color: #EEF2FF;
+  color: #4F46E5;
+}
+
+.item-total {
+  font-weight: 600;
+  color: #111827;
+}

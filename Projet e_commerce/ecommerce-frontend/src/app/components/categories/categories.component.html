@@ -1,0 +1,74 @@
+<div class="container">
+  <div class="header-section">
+    <h1>Liste des catégories</h1>
+    <button class="btn btn-primary" (click)="openAddModal()">
+      + Ajouter une catégorie
+    </button>
+  </div>
+
+  <div class="card">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Nom de la Catégorie</th>
+          <th>Description</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let category of categories">
+          <td>#{{ category.id }}</td>
+          <td class="category-name">{{ category.name }}</td>
+          <td>{{ category.description }}</td>
+          <td class="actions">
+            <button class="btn btn-icon btn-edit" (click)="openEditModal(category)" title="Modifier">
+              Modifier
+            </button>
+            <button class="btn btn-icon btn-delete" (click)="deleteCategory(category.id)" title="Supprimer">
+              Supprimer
+            </button>
+          </td>
+        </tr>
+        <tr *ngIf="isLoading">
+          <td colspan="4" class="text-center loading-cell">
+            <span class="spinner"></span> Chargement des catégories...
+          </td>
+        </tr>
+        <tr *ngIf="!isLoading && categories.length === 0">
+          <td colspan="4" class="text-center">Aucune catégorie disponible.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Modal Ajouter/Modifier -->
+<div class="modal-overlay" *ngIf="showModal" (click)="closeModal()">
+  <div class="modal" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2>{{ isEditMode ? 'Modifier la catégorie' : 'Ajouter une catégorie' }}</h2>
+      <button class="close-btn" (click)="closeModal()">&times;</button>
+    </div>
+    <div class="modal-body">
+      <form (ngSubmit)="saveCategory()" #categoryForm="ngForm">
+        <div class="form-group">
+          <label for="name">Nom de la catégorie</label>
+          <input type="text" id="name" name="name" [(ngModel)]="currentCategory.name" required class="form-control" placeholder="Ex: Electronics">
+        </div>
+        
+        <div class="form-group">
+          <label for="description">Description</label>
+          <textarea id="description" name="description" [(ngModel)]="currentCategory.description" required class="form-control" rows="3" placeholder="Description de la catégorie..."></textarea>
+        </div>
+        
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" (click)="closeModal()">Annuler</button>
+          <button type="submit" class="btn btn-primary" [disabled]="!categoryForm.form.valid">
+            {{ isEditMode ? 'Enregistrer les modifications' : 'Ajouter' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

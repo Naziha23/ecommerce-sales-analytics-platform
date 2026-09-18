@@ -1,0 +1,98 @@
+<div class="container">
+  <div class="header-section">
+    <h1>Liste des produits</h1>
+    <button class="btn btn-primary" (click)="openAddModal()">
+      + Ajouter un produit
+    </button>
+  </div>
+
+  <div class="card">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Nom du Produit</th>
+          <th>Catégorie</th>
+          <th>Prix</th>
+          <th>Stock</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let product of products">
+          <td>#{{ product.id }}</td>
+          <td class="product-name">{{ product.name }}</td>
+          <td><span class="badge">{{ product.categoryName || 'Catégorie ' + product.categoryId }}</span></td>
+          <td>{{ product.price }} €</td>
+          <td>
+            <span [class]="product.stock > 20 ? 'stock-high' : 'stock-low'">
+              {{ product.stock }} unités
+            </span>
+          </td>
+          <td class="actions">
+            <button class="btn btn-icon btn-edit" (click)="openEditModal(product)" title="Modifier">
+              Modifier
+            </button>
+            <button class="btn btn-icon btn-delete" (click)="deleteProduct(product.id)" title="Supprimer">
+              Supprimer
+            </button>
+          </td>
+        </tr>
+        <tr *ngIf="isLoading">
+          <td colspan="6" class="text-center loading-cell">
+            <span class="spinner"></span> Chargement des données...
+          </td>
+        </tr>
+        <tr *ngIf="!isLoading && products.length === 0">
+          <td colspan="6" class="text-center">Aucun produit disponible.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Modal Ajouter/Modifier -->
+<div class="modal-overlay" *ngIf="showModal" (click)="closeModal()">
+  <div class="modal" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2>{{ isEditMode ? 'Modifier un produit' : 'Ajouter un produit' }}</h2>
+      <button class="close-btn" (click)="closeModal()">&times;</button>
+    </div>
+    <div class="modal-body">
+      <form (ngSubmit)="saveProduct()" #productForm="ngForm">
+        <div class="form-group">
+          <label for="name">Nom du produit</label>
+          <input type="text" id="name" name="name" [(ngModel)]="currentProduct.name" required class="form-control">
+        </div>
+        
+        <div class="form-group">
+          <label for="description">Description</label>
+          <textarea id="description" name="description" [(ngModel)]="currentProduct.description" required class="form-control"></textarea>
+        </div>
+        
+        <div class="form-group">
+          <label for="categoryId">ID Catégorie</label>
+          <input type="number" id="categoryId" name="categoryId" [(ngModel)]="currentProduct.categoryId" required class="form-control">
+        </div>
+        
+        <div class="form-row">
+          <div class="form-group">
+            <label for="price">Prix (€)</label>
+            <input type="number" id="price" name="price" [(ngModel)]="currentProduct.price" required min="0" class="form-control">
+          </div>
+          <div class="form-group">
+            <label for="stock">Stock</label>
+            <input type="number" id="stock" name="stock" [(ngModel)]="currentProduct.stock" required min="0" class="form-control">
+          </div>
+        </div>
+        
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" (click)="closeModal()">Annuler</button>
+          <button type="submit" class="btn btn-primary" [disabled]="!productForm.form.valid">
+            {{ isEditMode ? 'Enregistrer les modifications' : 'Ajouter' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

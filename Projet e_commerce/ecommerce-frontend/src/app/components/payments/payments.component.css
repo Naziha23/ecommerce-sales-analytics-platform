@@ -1,0 +1,37 @@
+@import '../products/products.component.css';
+
+.payment-amount {
+  font-weight: 600;
+  color: #111827;
+}
+
+.badge-order {
+  background-color: #EEF2FF;
+  color: #4F46E5;
+}
+
+.badge-method {
+  background-color: #F3F4F6;
+  color: #374151;
+  font-weight: 600;
+}
+
+.badge-paid {
+  background-color: #D1FAE5;
+  color: #065F46;
+}
+
+.badge-pending {
+  background-color: #FEF3C7;
+  color: #92400E;
+}
+
+.badge-failed {
+  background-color: #FEE2E2;
+  color: #991B1B;
+}
+
+.badge-refunded {
+  background-color: #EDE9FE;
+  color: #5B21B6;
+}

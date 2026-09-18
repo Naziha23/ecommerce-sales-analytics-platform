@@ -1,0 +1,432 @@
+<!-- LOADER -->
+<div class="dashboard-loader" *ngIf="isLoading">
+  <div class="spinner-circle"></div>
+  <span class="loading-label">Synchronisation des données analytiques...</span>
+</div>
+
+<div class="dashboard-wrapper" *ngIf="!isLoading">
+
+  <!-- TOP TITLE & BREADCRUMB BAR -->
+  <div class="dashboard-header">
+    <div class="header-titles">
+      <h1 class="main-title">Vue d'Ensemble Analytique</h1>
+      <p class="main-subtitle">Indicateurs clés de performance et suivi des opérations e-commerce</p>
+    </div>
+    <div class="header-meta">
+      <span class="date-chip">
+        <svg class="chip-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+          <line x1="16" y1="2" x2="16" y2="6"></line>
+          <line x1="8" y1="2" x2="8" y2="6"></line>
+          <line x1="3" y1="10" x2="21" y2="10"></line>
+        </svg>
+        {{ today }}
+      </span>
+    </div>
+  </div>
+
+  <!-- 1. MATERIAL FLOATING KPI CARDS (STYLE MATERIAL DESIGN) -->
+  <div class="kpi-row">
+
+    <!-- KPI 1 : Chiffre d'affaires -->
+    <div class="material-kpi-card">
+      <div class="floating-icon icon-green">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="12" y1="1" x2="12" y2="23"></line>
+          <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+        </svg>
+      </div>
+      <div class="kpi-content">
+        <span class="kpi-category">Chiffre d'Affaires</span>
+        <h3 class="kpi-number">{{ formatCurrency(totalRevenue) }}</h3>
+      </div>
+      <div class="kpi-footer">
+        <div class="trend-tag trend-positive">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline>
+            <polyline points="17 6 23 6 23 12"></polyline>
+          </svg>
+          <span>+12.5%</span>
+        </div>
+        <span class="kpi-note">vs mois précédent</span>
+      </div>
+    </div>
+
+    <!-- KPI 2 : Commandes Totales -->
+    <div class="material-kpi-card">
+      <div class="floating-icon icon-blue">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="9" cy="21" r="1"></circle>
+          <circle cx="20" cy="21" r="1"></circle>
+          <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+        </svg>
+      </div>
+      <div class="kpi-content">
+        <span class="kpi-category">Commandes</span>
+        <h3 class="kpi-number">{{ totalOrders }}</h3>
+      </div>
+      <div class="kpi-footer">
+        <div class="trend-tag trend-positive">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline>
+            <polyline points="17 6 23 6 23 12"></polyline>
+          </svg>
+          <span>+8.2%</span>
+        </div>
+        <span class="kpi-note">croissance du panier</span>
+      </div>
+    </div>
+
+    <!-- KPI 3 : Clients Enregistrés -->
+    <div class="material-kpi-card">
+      <div class="floating-icon icon-pink">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+          <circle cx="9" cy="7" r="4"></circle>
+          <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+          <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+        </svg>
+      </div>
+      <div class="kpi-content">
+        <span class="kpi-category">Clients Inscrits</span>
+        <h3 class="kpi-number">{{ totalCustomers }}</h3>
+      </div>
+      <div class="kpi-footer">
+        <div class="trend-tag trend-positive">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline>
+            <polyline points="17 6 23 6 23 12"></polyline>
+          </svg>
+          <span>+4.8%</span>
+        </div>
+        <span class="kpi-note">nouveaux comptes</span>
+      </div>
+    </div>
+
+    <!-- KPI 4 : Produits en Stock -->
+    <div class="material-kpi-card">
+      <div class="floating-icon icon-orange">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+          <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
+          <line x1="12" y1="22.08" x2="12" y2="12"></line>
+        </svg>
+      </div>
+      <div class="kpi-content">
+        <span class="kpi-category">Catalogue Produits</span>
+        <h3 class="kpi-number">{{ totalProducts }}</h3>
+      </div>
+      <div class="kpi-footer">
+        <div class="trend-tag trend-neutral">
+          <span>Actif</span>
+        </div>
+        <span class="kpi-note">références en vente</span>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- 2. STATISTICAL BREAKDOWN ROW -->
+  <div class="stats-grid">
+
+    <!-- Progress Status Breakdown -->
+    <div class="material-panel">
+      <div class="panel-header">
+        <div class="panel-title-group">
+          <div class="header-indicator indicator-blue"></div>
+          <div>
+            <h2 class="panel-title">Statut des Commandes</h2>
+            <span class="panel-subtitle">Répartition en temps réel des commandes en cours</span>
+          </div>
+        </div>
+        <a routerLink="/orders" class="panel-link">Consulter tout &rarr;</a>
+      </div>
+
+      <div class="status-list">
+        <div class="status-row" *ngFor="let stat of orderStatusStats">
+          <div class="status-info">
+            <span class="status-name">{{ stat.label }}</span>
+            <span class="status-meta"><strong>{{ stat.count }}</strong> commandes ({{ stat.percent }}%)</span>
+          </div>
+          <div class="progress-bar-bg">
+            <div class="progress-bar-fill" [style.width.%]="stat.percent" [style.background-color]="stat.color"></div>
+          </div>
+        </div>
+        <div *ngIf="orderStatusStats.length === 0" class="empty-state">
+          Aucune donnée de commande disponible.
+        </div>
+      </div>
+    </div>
+
+    <!-- Financial & Performance Metrics -->
+    <div class="material-panel">
+      <div class="panel-header">
+        <div class="panel-title-group">
+          <div class="header-indicator indicator-green"></div>
+          <div>
+            <h2 class="panel-title">Indicateurs de Performance</h2>
+            <span class="panel-subtitle">Mesures clés d'efficacité commerciale</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="metrics-grid">
+        <div class="metric-box">
+          <div class="metric-icon-wrap icon-wrap-green">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+            </svg>
+          </div>
+          <div class="metric-data">
+            <span class="metric-label">Panier Moyen</span>
+            <span class="metric-val">{{ formatCurrency(averageOrderValue) }}</span>
+            <span class="metric-sub">Par commande passée</span>
+          </div>
+        </div>
+
+        <div class="metric-box">
+          <div class="metric-icon-wrap icon-wrap-blue">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+              <polyline points="22 4 12 14.01 9 11.01"></polyline>
+            </svg>
+          </div>
+          <div class="metric-data">
+            <span class="metric-label">Taux de Règlements</span>
+            <span class="metric-val">{{ paymentSuccessRate }}%</span>
+            <span class="metric-sub">{{ paidOrdersCount }} règlements validés</span>
+          </div>
+        </div>
+
+        <div class="metric-box">
+          <div class="metric-icon-wrap icon-wrap-purple">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
+              <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
+            </svg>
+          </div>
+          <div class="metric-data">
+            <span class="metric-label">Densité Catalogue</span>
+            <span class="metric-val">{{ totalProducts }} réf.</span>
+            <span class="metric-sub">Produits disponibles</span>
+          </div>
+        </div>
+
+        <div class="metric-box">
+          <div class="metric-icon-wrap icon-wrap-orange">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+              <circle cx="9" cy="7" r="4"></circle>
+            </svg>
+          </div>
+          <div class="metric-data">
+            <span class="metric-label">Comptes Clients</span>
+            <span class="metric-val">{{ totalCustomers }}</span>
+            <span class="metric-sub">Portefeuille actif</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- 3. TABLES SECTION (STYLE EXTENDED TABLES MATERIAL) -->
+  <div class="tables-grid">
+
+    <!-- Table 1 : Dernières Commandes -->
+    <div class="material-panel table-panel">
+      <div class="panel-header">
+        <div class="panel-title-group">
+          <div class="floating-mini-badge badge-color-blue">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="9" cy="21" r="1"></circle>
+              <circle cx="20" cy="21" r="1"></circle>
+              <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+            </svg>
+          </div>
+          <div>
+            <h2 class="panel-title">Dernières Commandes</h2>
+            <span class="panel-subtitle">Flux récent des commandes clients</span>
+          </div>
+        </div>
+        <a routerLink="/orders" class="panel-link">Gérer &rarr;</a>
+      </div>
+
+      <div class="table-responsive">
+        <table class="extended-table">
+          <thead>
+            <tr>
+              <th>RÉFÉRENCE</th>
+              <th>CLIENT</th>
+              <th>MONTANT</th>
+              <th>STATUT</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let order of recentOrders">
+              <td class="cell-code">CMD-#{{ order.id }}</td>
+              <td class="cell-primary">{{ order.customerName || 'Client #' + order.customerId }}</td>
+              <td class="cell-amount">{{ order.totalAmount | number:'1.2-2' }} €</td>
+              <td>
+                <span class="status-pill" [ngClass]="getStatusBadge(order.status)">
+                  {{ getStatusLabel(order.status) }}
+                </span>
+              </td>
+            </tr>
+            <tr *ngIf="recentOrders.length === 0">
+              <td colspan="4" class="empty-table-msg">Aucune commande enregistrée</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Table 2 : Derniers Paiements -->
+    <div class="material-panel table-panel">
+      <div class="panel-header">
+        <div class="panel-title-group">
+          <div class="floating-mini-badge badge-color-pink">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect>
+              <line x1="1" y1="10" x2="23" y2="10"></line>
+            </svg>
+          </div>
+          <div>
+            <h2 class="panel-title">Derniers Paiements</h2>
+            <span class="panel-subtitle">Transactions financières récentes</span>
+          </div>
+        </div>
+        <a routerLink="/payments" class="panel-link">Gérer &rarr;</a>
+      </div>
+
+      <div class="table-responsive">
+        <table class="extended-table">
+          <thead>
+            <tr>
+              <th>COMMANDE</th>
+              <th>MÉTHODE</th>
+              <th>MONTANT</th>
+              <th>STATUT</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let payment of recentPayments">
+              <td class="cell-code">CMD-#{{ payment.orderId }}</td>
+              <td>
+                <span class="method-tag">{{ payment.method }}</span>
+              </td>
+              <td class="cell-amount">{{ payment.amount | number:'1.2-2' }} €</td>
+              <td>
+                <span class="status-pill" [ngClass]="getStatusBadge(payment.status)">
+                  {{ getStatusLabel(payment.status) }}
+                </span>
+              </td>
+            </tr>
+            <tr *ngIf="recentPayments.length === 0">
+              <td colspan="4" class="empty-table-msg">Aucune transaction enregistrée</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- 4. QUICK MANAGEMENT MODULES (NAVIGATION PRO) -->
+  <div class="material-panel quick-nav-panel">
+    <div class="panel-header">
+      <div class="panel-title-group">
+        <div class="header-indicator indicator-purple"></div>
+        <div>
+          <h2 class="panel-title">Accès Rapide aux Modules de Gestion</h2>
+          <span class="panel-subtitle">Accédez directement aux entités de la plateforme</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="quick-nav-grid">
+      <a routerLink="/products" class="quick-nav-card">
+        <div class="quick-icon-box q-blue">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+          </svg>
+        </div>
+        <div class="quick-text">
+          <span class="quick-title">Produits</span>
+          <span class="quick-desc">{{ totalProducts }} articles</span>
+        </div>
+      </a>
+
+      <a routerLink="/categories" class="quick-nav-card">
+        <div class="quick-icon-box q-purple">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path>
+            <line x1="7" y1="7" x2="7.01" y2="7"></line>
+          </svg>
+        </div>
+        <div class="quick-text">
+          <span class="quick-title">Catégories</span>
+          <span class="quick-desc">Classification</span>
+        </div>
+      </a>
+
+      <a routerLink="/customers" class="quick-nav-card">
+        <div class="quick-icon-box q-green">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+            <circle cx="9" cy="7" r="4"></circle>
+          </svg>
+        </div>
+        <div class="quick-text">
+          <span class="quick-title">Clients</span>
+          <span class="quick-desc">{{ totalCustomers }} comptes</span>
+        </div>
+      </a>
+
+      <a routerLink="/orders" class="quick-nav-card">
+        <div class="quick-icon-box q-orange">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="9" cy="21" r="1"></circle>
+            <circle cx="20" cy="21" r="1"></circle>
+            <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+          </svg>
+        </div>
+        <div class="quick-text">
+          <span class="quick-title">Commandes</span>
+          <span class="quick-desc">{{ totalOrders }} ventes</span>
+        </div>
+      </a>
+
+      <a routerLink="/order-items" class="quick-nav-card">
+        <div class="quick-icon-box q-teal">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="8" y1="6" x2="21" y2="6"></line>
+            <line x1="8" y1="12" x2="21" y2="12"></line>
+            <line x1="8" y1="18" x2="21" y2="18"></line>
+            <line x1="3" y1="6" x2="3.01" y2="6"></line>
+            <line x1="3" y1="12" x2="3.01" y2="12"></line>
+            <line x1="3" y1="18" x2="3.01" y2="18"></line>
+          </svg>
+        </div>
+        <div class="quick-text">
+          <span class="quick-title">Lignes de commande</span>
+          <span class="quick-desc">Détails articles</span>
+        </div>
+      </a>
+
+      <a routerLink="/payments" class="quick-nav-card">
+        <div class="quick-icon-box q-pink">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect>
+            <line x1="1" y1="10" x2="23" y2="10"></line>
+          </svg>
+        </div>
+        <div class="quick-text">
+          <span class="quick-title">Paiements</span>
+          <span class="quick-desc">{{ formatCurrency(totalRevenue) }}</span>
+        </div>
+      </a>
+    </div>
+  </div>
+
+</div>

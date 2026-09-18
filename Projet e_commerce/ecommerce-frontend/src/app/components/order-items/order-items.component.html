@@ -1,0 +1,109 @@
+<div class="container">
+  <div class="header-section">
+    <div>
+      <h1>Lignes de commande</h1>
+      <p class="subtitle">Détails des articles rattachés aux commandes</p>
+    </div>
+    <div class="header-actions">
+      <div class="filter-box">
+        <input 
+          type="number" 
+          [(ngModel)]="filterOrderId" 
+          (keyup.enter)="onFilterChange()" 
+          placeholder="Filtrer par ID Commande" 
+          class="form-control filter-input"
+        >
+        <button class="btn btn-secondary" (click)="onFilterChange()">Filtrer</button>
+        <button *ngIf="filterOrderId" class="btn btn-secondary" (click)="clearFilter()">Tous</button>
+      </div>
+      <button class="btn btn-primary" (click)="openAddModal()">
+        + Ajouter un article
+      </button>
+    </div>
+  </div>
+
+  <div class="card">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>ID Commande</th>
+          <th>ID Produit</th>
+          <th>Nom Produit</th>
+          <th>Quantité</th>
+          <th>Prix Unitaire</th>
+          <th>Total</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let item of orderItems">
+          <td>#{{ item.id }}</td>
+          <td>
+            <span class="badge badge-order">Commande #{{ item.orderId }}</span>
+          </td>
+          <td>#{{ item.productId }}</td>
+          <td class="product-name">{{ item.productName || 'Produit #' + item.productId }}</td>
+          <td>{{ item.quantity }}</td>
+          <td>{{ item.unitPrice }} €</td>
+          <td class="item-total">{{ (item.quantity * item.unitPrice) | number:'1.2-2' }} €</td>
+          <td class="actions">
+            <button class="btn btn-icon btn-delete" (click)="deleteOrderItem(item.id)" title="Supprimer">
+              Supprimer
+            </button>
+          </td>
+        </tr>
+        <tr *ngIf="isLoading">
+          <td colspan="8" class="text-center loading-cell">
+            <span class="spinner"></span> Chargement des articles...
+          </td>
+        </tr>
+        <tr *ngIf="!isLoading && orderItems.length === 0">
+          <td colspan="8" class="text-center">Aucune ligne de commande trouvée.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Modal Ajouter un article -->
+<div class="modal-overlay" *ngIf="showModal" (click)="closeModal()">
+  <div class="modal" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2>Ajouter un article à une commande</h2>
+      <button class="close-btn" (click)="closeModal()">&times;</button>
+    </div>
+    <div class="modal-body">
+      <form (ngSubmit)="saveOrderItem()" #itemForm="ngForm">
+        <div class="form-row">
+          <div class="form-group">
+            <label for="orderId">ID Commande</label>
+            <input type="number" id="orderId" name="orderId" [(ngModel)]="currentItem.orderId" required min="1" class="form-control">
+          </div>
+          <div class="form-group">
+            <label for="productId">ID Produit</label>
+            <input type="number" id="productId" name="productId" [(ngModel)]="currentItem.productId" required min="1" class="form-control">
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="quantity">Quantité</label>
+            <input type="number" id="quantity" name="quantity" [(ngModel)]="currentItem.quantity" required min="1" class="form-control">
+          </div>
+          <div class="form-group">
+            <label for="unitPrice">Prix Unitaire (€)</label>
+            <input type="number" id="unitPrice" name="unitPrice" [(ngModel)]="currentItem.unitPrice" required min="0" step="0.01" class="form-control">
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" (click)="closeModal()">Annuler</button>
+          <button type="submit" class="btn btn-primary" [disabled]="!itemForm.form.valid">
+            Ajouter l'article
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

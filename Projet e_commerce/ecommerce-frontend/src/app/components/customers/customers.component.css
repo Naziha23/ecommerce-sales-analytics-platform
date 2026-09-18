@@ -1,0 +1,6 @@
+@import '../products/products.component.css';
+
+.customer-name {
+  font-weight: 600;
+  color: #1f2937;
+}

@@ -1,0 +1,31 @@
+@import '../products/products.component.css';
+
+.order-amount {
+  font-weight: 600;
+  color: #111827;
+}
+
+.badge-pending {
+  background-color: #FEF3C7;
+  color: #92400E;
+}
+
+.badge-confirmed {
+  background-color: #DBEAFE;
+  color: #1E40AF;
+}
+
+.badge-shipped {
+  background-color: #E0E7FF;
+  color: #3730A3;
+}
+
+.badge-delivered {
+  background-color: #D1FAE5;
+  color: #065F46;
+}
+
+.badge-cancelled {
+  background-color: #FEE2E2;
+  color: #991B1B;
+}
