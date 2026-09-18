@@ -24,6 +24,11 @@ public class OrderItemService {
     private final OrderRepository orderRepository;
     private final ProductRepository productRepository;
 
+    public List<OrderItemDTO> findAll() {
+        return orderItemRepository.findAll().stream()
+                .map(this::toDTO).collect(Collectors.toList());
+    }
+
     public List<OrderItemDTO> findByOrder(Long orderId) {
         return orderItemRepository.findByOrderId(orderId).stream()
                 .map(this::toDTO).collect(Collectors.toList());
