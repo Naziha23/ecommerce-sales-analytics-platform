@@ -59,20 +59,26 @@ class ProductJdbcIntegrationTest {
                 "Informatique Test"
         );
 
-        // 2. Insérer un produit associé
+        // 2. Insérer un produit associé avec BigDecimal
         jdbcTemplate.update(
                 "INSERT INTO products (name, description, price, stock, category_id) VALUES (?, ?, ?, ?, ?)",
-                "Souris Gamer Test", "Souris haute précision", 49.99, 10, categoryId
+                "Souris Gamer Test", "Souris haute précision", new java.math.BigDecimal("49.99"), 10, categoryId
         );
 
-        // 3. Lire le produit inséré
-        Map<String, Object> product = jdbcTemplate.queryForMap(
-                "SELECT name, price, stock FROM products WHERE name = ?",
+        // 3. Lire le produit inséré (insensible à la casse des métadonnées)
+        String productName = jdbcTemplate.queryForObject(
+                "SELECT name FROM products WHERE name = ?",
+                String.class,
                 "Souris Gamer Test"
         );
 
-        assertThat(product).isNotNull();
-        assertThat(product.get("name")).isEqualTo("Souris Gamer Test");
-        assertThat(product.get("stock")).isEqualTo(10);
+        Integer productStock = jdbcTemplate.queryForObject(
+                "SELECT stock FROM products WHERE name = ?",
+                Integer.class,
+                "Souris Gamer Test"
+        );
+
+        assertThat(productName).isEqualTo("Souris Gamer Test");
+        assertThat(productStock).isEqualTo(10);
     }
 }
