@@ -5,8 +5,11 @@ import com.example.ecommerce.dto.OrderItemDTO;
 import com.example.ecommerce.entity.Customer;
 import com.example.ecommerce.entity.Order;
 import com.example.ecommerce.entity.OrderStatus;
+import com.example.ecommerce.exception.BusinessException;
 import com.example.ecommerce.repository.CustomerRepository;
+import com.example.ecommerce.repository.OrderItemRepository;
 import com.example.ecommerce.repository.OrderRepository;
+import com.example.ecommerce.repository.PaymentRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -22,6 +25,8 @@ public class OrderService {
 
     private final OrderRepository orderRepository;
     private final CustomerRepository customerRepository;
+    private final OrderItemRepository orderItemRepository;
+    private final PaymentRepository paymentRepository;
 
     public List<OrderDTO> findAll() {
         return orderRepository.findAll().stream()
@@ -65,6 +70,21 @@ public class OrderService {
         if (!orderRepository.existsById(id)) {
             throw new EntityNotFoundException("Order not found with id: " + id);
         }
+        // Contrainte d'intégrité : impossible de supprimer une commande avec des lignes de commande
+        List<?> items = orderItemRepository.findByOrderId(id);
+        if (!items.isEmpty()) {
+            throw new BusinessException(
+                "Impossible de supprimer cette commande : elle contient " + items.size() +
+                " ligne(s) de commande. Veuillez d'abord supprimer ces lignes."
+            );
+        }
+        // Contrainte d'intégrité : impossible de supprimer une commande ayant un paiement
+        paymentRepository.findByOrderId(id).ifPresent(p -> {
+            throw new BusinessException(
+                "Impossible de supprimer cette commande : un paiement y est associé (ID #" + p.getId() +
+                "). Veuillez d'abord supprimer le paiement."
+            );
+        });
         orderRepository.deleteById(id);
     }
 
@@ -91,3 +111,4 @@ public class OrderService {
                 .build();
     }
 }
+

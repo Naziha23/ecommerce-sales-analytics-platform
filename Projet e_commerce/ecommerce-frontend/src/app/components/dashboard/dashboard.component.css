@@ -202,6 +202,10 @@
   color: #10b981;
 }
 
+.trend-negative {
+  color: #ef4444;
+}
+
 .trend-neutral {
   color: #64748b;
   background: #f1f5f9;

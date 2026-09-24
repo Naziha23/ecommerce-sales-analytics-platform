@@ -2,7 +2,9 @@ package com.example.ecommerce.service;
 
 import com.example.ecommerce.dto.CategoryDTO;
 import com.example.ecommerce.entity.Category;
+import com.example.ecommerce.exception.BusinessException;
 import com.example.ecommerce.repository.CategoryRepository;
+import com.example.ecommerce.repository.ProductRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -17,6 +19,7 @@ import java.util.stream.Collectors;
 public class CategoryService {
 
     private final CategoryRepository categoryRepository;
+    private final ProductRepository productRepository;
 
     public List<CategoryDTO> findAll() {
         return categoryRepository.findAll().stream()
@@ -49,6 +52,14 @@ public class CategoryService {
         if (!categoryRepository.existsById(id)) {
             throw new EntityNotFoundException("Category not found with id: " + id);
         }
+        // Contrainte d'intégrité : impossible de supprimer une catégorie qui contient des produits
+        List<?> products = productRepository.findByCategoryId(id);
+        if (!products.isEmpty()) {
+            throw new BusinessException(
+                "Impossible de supprimer cette catégorie : elle contient " + products.size() +
+                " produit(s). Veuillez d'abord réaffecter ou supprimer ces produits."
+            );
+        }
         categoryRepository.deleteById(id);
     }
 
@@ -60,3 +71,4 @@ public class CategoryService {
                 .build();
     }
 }
+

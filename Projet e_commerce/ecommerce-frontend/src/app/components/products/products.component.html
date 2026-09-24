@@ -6,6 +6,15 @@
     </button>
   </div>
 
+  <form class="product-search" (ngSubmit)="searchProducts()">
+    <label for="product-search">Rechercher un produit</label>
+    <input id="product-search" name="searchTerm" type="search" [(ngModel)]="searchTerm" placeholder="Nom du produit">
+    <button type="submit" class="btn btn-primary">Rechercher</button>
+    @if (searchTerm) {
+      <button type="button" class="btn btn-secondary" (click)="searchTerm = ''; loadProducts()">Réinitialiser</button>
+    }
+  </form>
+
   <div class="card">
     <table class="table">
       <thead>

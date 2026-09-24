@@ -1,12 +1,16 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
+import { catchError } from 'rxjs/operators';
+import { forkJoin, of } from 'rxjs';
 import { ProductService } from '../../services/product.service';
 import { CustomerService } from '../../services/customer.service';
 import { OrderService } from '../../services/order.service';
 import { PaymentService } from '../../services/payment.service';
 import type { Order } from '../../models/order';
 import type { Payment } from '../../models/payment';
+import type { Customer } from '../../models/customer';
+import type { Product } from '../../models/product';
 
 interface KpiCard {
   id: string;
@@ -48,6 +52,10 @@ export class DashboardComponent implements OnInit {
   paidOrdersCount = 0;
   paymentSuccessRate = 0;
 
+  revenueTrend = 0;
+  ordersTrend = 0;
+  customersTrend = 0;
+
   today = new Date().toLocaleDateString('fr-FR', {
     weekday: 'long',
     year: 'numeric',
@@ -59,59 +67,72 @@ export class DashboardComponent implements OnInit {
   private customerService = inject(CustomerService);
   private orderService = inject(OrderService);
   private paymentService = inject(PaymentService);
+  private cdr = inject(ChangeDetectorRef);
 
   ngOnInit(): void {
     this.loadDashboard();
   }
 
   loadDashboard(): void {
-    let loaded = 0;
-    const checkDone = () => {
-      loaded++;
-      if (loaded === 4) {
+    this.isLoading = true;
+    forkJoin({
+      products: this.productService.getProducts().pipe(catchError(() => of([]))),
+      customers: this.customerService.getCustomers().pipe(catchError(() => of([]))),
+      orders: this.orderService.getOrders().pipe(catchError(() => of([]))),
+      payments: this.paymentService.getPayments().pipe(catchError(() => of([])))
+    }).subscribe({
+      next: (data) => {
+        this.totalProducts = data.products.length;
+        this.totalCustomers = data.customers.length;
+        this.totalOrders = data.orders.length;
+
+        this.recentOrders = data.orders.slice(-5).reverse();
+        this.buildOrderStatusStats(data.orders);
+        
+        const paidPayments = data.payments.filter(p => p.status === 'PAID');
+        this.totalRevenue = paidPayments.reduce((sum, p) => sum + Number(p.amount), 0);
+        this.paidOrdersCount = paidPayments.length;
+        this.paymentSuccessRate = data.payments.length > 0 ? Math.round((paidPayments.length / data.payments.length) * 100) : 0;
+        this.recentPayments = data.payments.slice(-5).reverse();
+
+        this.calculateTrends(data.orders, paidPayments, data.customers);
         this.computeAdvancedStats();
         this.buildKpis();
         this.isLoading = false;
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        console.error('Erreur lors du chargement des données du dashboard', err);
+        this.isLoading = false;
+        this.cdr.detectChanges();
       }
-    };
-
-    this.productService.getProducts().subscribe({
-      next: (data) => {
-        this.totalProducts = data.length;
-        checkDone();
-      },
-      error: () => checkDone()
     });
+  }
 
-    this.customerService.getCustomers().subscribe({
-      next: (data) => {
-        this.totalCustomers = data.length;
-        checkDone();
-      },
-      error: () => checkDone()
-    });
+  calculateTrends(orders: Order[], paidPayments: Payment[], customers: Customer[]): void {
+    const now = new Date();
+    const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+    const sixtyDaysAgo = new Date(now.getTime() - 60 * 24 * 60 * 60 * 1000);
 
-    this.orderService.getOrders().subscribe({
-      next: (data) => {
-        this.totalOrders = data.length;
-        this.recentOrders = data.slice(-5).reverse();
-        this.buildOrderStatusStats(data);
-        checkDone();
-      },
-      error: () => checkDone()
-    });
+    // Revenue Trend
+    const recentRevenue = paidPayments
+      .filter(p => p.paymentDate && new Date(p.paymentDate) >= thirtyDaysAgo)
+      .reduce((sum, p) => sum + Number(p.amount), 0);
+    const oldRevenue = paidPayments
+      .filter(p => p.paymentDate && new Date(p.paymentDate) >= sixtyDaysAgo && new Date(p.paymentDate) < thirtyDaysAgo)
+      .reduce((sum, p) => sum + Number(p.amount), 0);
+    
+    this.revenueTrend = oldRevenue === 0 ? (recentRevenue > 0 ? 100 : 0) : Math.round(((recentRevenue - oldRevenue) / oldRevenue) * 100);
 
-    this.paymentService.getPayments().subscribe({
-      next: (data) => {
-        const paidPayments = data.filter(p => p.status === 'PAID');
-        this.totalRevenue = paidPayments.reduce((sum, p) => sum + Number(p.amount), 0);
-        this.paidOrdersCount = paidPayments.length;
-        this.paymentSuccessRate = data.length > 0 ? Math.round((paidPayments.length / data.length) * 100) : 0;
-        this.recentPayments = data.slice(-5).reverse();
-        checkDone();
-      },
-      error: () => checkDone()
-    });
+    // Orders Trend
+    const recentOrders = orders.filter(o => o.orderDate && new Date(o.orderDate) >= thirtyDaysAgo).length;
+    const oldOrdersCount = orders.filter(o => o.orderDate && new Date(o.orderDate) >= sixtyDaysAgo && new Date(o.orderDate) < thirtyDaysAgo).length;
+    this.ordersTrend = oldOrdersCount === 0 ? (recentOrders > 0 ? 100 : 0) : Math.round(((recentOrders - oldOrdersCount) / oldOrdersCount) * 100);
+
+    // Customers Trend
+    const recentCustomers = customers.filter(c => c.createdAt && new Date(c.createdAt) >= thirtyDaysAgo).length;
+    const oldCustomers = customers.filter(c => c.createdAt && new Date(c.createdAt) >= sixtyDaysAgo && new Date(c.createdAt) < thirtyDaysAgo).length;
+    this.customersTrend = oldCustomers === 0 ? (recentCustomers > 0 ? 100 : 0) : Math.round(((recentCustomers - oldCustomers) / oldCustomers) * 100);
   }
 
   computeAdvancedStats(): void {
@@ -127,7 +148,7 @@ export class DashboardComponent implements OnInit {
         subtitle: 'Paiements encaissés',
         type: 'revenue',
         theme: 'green',
-        trend: 12.5,
+        trend: this.revenueTrend,
         trendLabel: 'vs mois précédent'
       },
       {
@@ -137,8 +158,8 @@ export class DashboardComponent implements OnInit {
         subtitle: 'Volume de ventes',
         type: 'orders',
         theme: 'blue',
-        trend: 8.2,
-        trendLabel: 'croissance continue'
+        trend: this.ordersTrend,
+        trendLabel: 'vs mois précédent'
       },
       {
         id: 'customers',
@@ -147,8 +168,8 @@ export class DashboardComponent implements OnInit {
         subtitle: 'Comptes actifs',
         type: 'customers',
         theme: 'pink',
-        trend: 4.8,
-        trendLabel: 'nouveaux clients'
+        trend: this.customersTrend,
+        trendLabel: 'vs mois précédent'
       },
       {
         id: 'products',
@@ -158,7 +179,7 @@ export class DashboardComponent implements OnInit {
         type: 'products',
         theme: 'orange',
         trend: 0,
-        trendLabel: 'catalogue à jour'
+        trendLabel: 'catalogue global'
       }
     ];
   }

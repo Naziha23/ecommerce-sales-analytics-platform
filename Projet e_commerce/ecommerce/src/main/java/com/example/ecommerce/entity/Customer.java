@@ -44,7 +44,7 @@ public class Customer {
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 
-    @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "customer")
     @JsonIgnore
     @ToString.Exclude
     @Builder.Default

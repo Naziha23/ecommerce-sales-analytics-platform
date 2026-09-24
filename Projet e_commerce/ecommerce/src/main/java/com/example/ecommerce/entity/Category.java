@@ -26,7 +26,7 @@ public class Category {
     @Column(length = 255)
     private String description;
 
-    @OneToMany(mappedBy = "category", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "category")
     @JsonIgnore
     @ToString.Exclude
     @Builder.Default

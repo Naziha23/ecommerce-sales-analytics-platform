@@ -2,7 +2,9 @@ package com.example.ecommerce.service;
 
 import com.example.ecommerce.dto.CustomerDTO;
 import com.example.ecommerce.entity.Customer;
+import com.example.ecommerce.exception.BusinessException;
 import com.example.ecommerce.repository.CustomerRepository;
+import com.example.ecommerce.repository.OrderRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -17,6 +19,7 @@ import java.util.stream.Collectors;
 public class CustomerService {
 
     private final CustomerRepository customerRepository;
+    private final OrderRepository orderRepository;
 
     public List<CustomerDTO> findAll() {
         return customerRepository.findAll().stream()
@@ -57,6 +60,14 @@ public class CustomerService {
         if (!customerRepository.existsById(id)) {
             throw new EntityNotFoundException("Customer not found with id: " + id);
         }
+        // Contrainte d'intégrité : impossible de supprimer un client ayant des commandes
+        List<?> orders = orderRepository.findByCustomerId(id);
+        if (!orders.isEmpty()) {
+            throw new BusinessException(
+                "Impossible de supprimer ce client : il possède " + orders.size() +
+                " commande(s). Veuillez d'abord supprimer ses commandes."
+            );
+        }
         customerRepository.deleteById(id);
     }
 
@@ -73,3 +84,4 @@ public class CustomerService {
                 .build();
     }
 }
+

@@ -215,9 +215,17 @@
 }
 
 @keyframes pulse {
-  0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.5); }
-  70% { box-shadow: 0 0 0 8px rgba(16, 185, 129, 0); }
-  100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+  0% {
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.5);
+  }
+
+  70% {
+    box-shadow: 0 0 0 8px rgba(16, 185, 129, 0);
+  }
+
+  100% {
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
+  }
 }
 
 /* ─────────────────────────────────────────────────────────
@@ -313,6 +321,40 @@
   position: relative;
 }
 
+.notification-panel {
+  position: absolute;
+  top: 2.8rem;
+  right: 0;
+  z-index: 100;
+  width: 280px;
+  padding: 1rem;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  box-shadow: 0 12px 30px rgba(30, 34, 45, 0.16);
+  color: #334155;
+}
+
+.notification-item {
+  display: grid;
+  gap: 0.2rem;
+  margin-top: 0.75rem;
+  padding: 0.65rem;
+  border-left: 3px solid #f59e0b;
+  background: #fffbeb;
+  font-size: 0.78rem;
+}
+
+.notification-item span,
+.notification-empty {
+  color: #64748b;
+}
+
+.notification-critical {
+  border-left-color: #ef4444;
+  background: #fef2f2;
+}
+
 .topbar-btn {
   background: transparent;
   border: none;
@@ -385,6 +427,21 @@
   color: #334155;
 }
 
+.logout-button {
+  border: 1px solid #fecdd3;
+  border-radius: 6px;
+  padding: 0.4rem 0.65rem;
+  background: #fff1f2;
+  color: #be123c;
+  cursor: pointer;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.logout-button:hover {
+  background: #ffe4e6;
+}
+
 /* Page Content */
 .page-content {
   flex: 1;
@@ -397,21 +454,30 @@
   .sidebar {
     width: 72px;
   }
-  .brand-text, .user-info, .nav-label, .nav-section-title, .sidebar-footer {
+
+  .brand-text,
+  .user-info,
+  .nav-label,
+  .nav-section-title,
+  .sidebar-footer {
     display: none;
   }
+
   .sidebar-brand {
     justify-content: center;
     padding: 1rem 0;
   }
+
   .sidebar-user {
     justify-content: center;
     padding: 0.8rem 0;
   }
+
   .nav-item {
     justify-content: center;
     padding: 0.75rem 0;
   }
+
   .main-wrapper {
     margin-left: 72px;
   }

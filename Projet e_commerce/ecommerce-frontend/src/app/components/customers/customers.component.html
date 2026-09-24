@@ -1,9 +1,23 @@
 <div class="container">
   <div class="header-section">
     <h1>Liste des clients</h1>
-    <button class="btn btn-primary" (click)="openAddModal()">
-      + Ajouter un client
-    </button>
+    <button class="btn btn-primary" (click)="openAddModal()">+ Ajouter un client</button>
+  </div>
+
+  <div class="entity-search">
+    <label for="customer-search">Rechercher un client</label>
+    <input
+      id="customer-search"
+      type="search"
+      [(ngModel)]="searchTerm"
+      (ngModelChange)="applySearch()"
+      placeholder="Nom, email, ville ou pays"
+    />
+    @if (searchTerm) {
+      <button type="button" class="search-reset" (click)="searchTerm = ''; applySearch()">
+        Réinitialiser
+      </button>
+    }
   </div>
 
   <div class="card">
@@ -26,12 +40,22 @@
           <td>{{ customer.email }}</td>
           <td>{{ customer.phone || '-' }}</td>
           <td>{{ customer.city || '-' }}</td>
-          <td><span class="badge">{{ customer.country || 'N/A' }}</span></td>
+          <td>
+            <span class="badge">{{ customer.country || 'N/A' }}</span>
+          </td>
           <td class="actions">
-            <button class="btn btn-icon btn-edit" (click)="openEditModal(customer)" title="Modifier">
+            <button
+              class="btn btn-icon btn-edit"
+              (click)="openEditModal(customer)"
+              title="Modifier"
+            >
               Modifier
             </button>
-            <button class="btn btn-icon btn-delete" (click)="deleteCustomer(customer.id)" title="Supprimer">
+            <button
+              class="btn btn-icon btn-delete"
+              (click)="deleteCustomer(customer.id)"
+              title="Supprimer"
+            >
               Supprimer
             </button>
           </td>
@@ -61,32 +85,78 @@
         <div class="form-row">
           <div class="form-group">
             <label for="firstName">Prénom</label>
-            <input type="text" id="firstName" name="firstName" [(ngModel)]="currentCustomer.firstName" required class="form-control" placeholder="Prénom">
+            <input
+              type="text"
+              id="firstName"
+              name="firstName"
+              [(ngModel)]="currentCustomer.firstName"
+              required
+              class="form-control"
+              placeholder="Prénom"
+            />
           </div>
           <div class="form-group">
             <label for="lastName">Nom</label>
-            <input type="text" id="lastName" name="lastName" [(ngModel)]="currentCustomer.lastName" required class="form-control" placeholder="Nom">
+            <input
+              type="text"
+              id="lastName"
+              name="lastName"
+              [(ngModel)]="currentCustomer.lastName"
+              required
+              class="form-control"
+              placeholder="Nom"
+            />
           </div>
         </div>
 
         <div class="form-group">
           <label for="email">Email</label>
-          <input type="email" id="email" name="email" [(ngModel)]="currentCustomer.email" required email class="form-control" placeholder="exemple@domaine.com">
+          <input
+            type="email"
+            id="email"
+            name="email"
+            [(ngModel)]="currentCustomer.email"
+            required
+            email
+            class="form-control"
+            placeholder="exemple@domaine.com"
+          />
         </div>
 
         <div class="form-group">
           <label for="phone">Téléphone</label>
-          <input type="text" id="phone" name="phone" [(ngModel)]="currentCustomer.phone" class="form-control" placeholder="Ex: 20111111">
+          <input
+            type="text"
+            id="phone"
+            name="phone"
+            [(ngModel)]="currentCustomer.phone"
+            class="form-control"
+            placeholder="Ex: 20111111"
+          />
         </div>
 
         <div class="form-row">
           <div class="form-group">
             <label for="city">Ville</label>
-            <input type="text" id="city" name="city" [(ngModel)]="currentCustomer.city" class="form-control" placeholder="Tunis, Paris...">
+            <input
+              type="text"
+              id="city"
+              name="city"
+              [(ngModel)]="currentCustomer.city"
+              class="form-control"
+              placeholder="Tunis, Paris..."
+            />
           </div>
           <div class="form-group">
             <label for="country">Pays</label>
-            <input type="text" id="country" name="country" [(ngModel)]="currentCustomer.country" class="form-control" placeholder="Tunisia, France...">
+            <input
+              type="text"
+              id="country"
+              name="country"
+              [(ngModel)]="currentCustomer.country"
+              class="form-control"
+              placeholder="Tunisia, France..."
+            />
           </div>
         </div>
 

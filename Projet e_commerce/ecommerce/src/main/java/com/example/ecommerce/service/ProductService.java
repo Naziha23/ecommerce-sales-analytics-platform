@@ -3,7 +3,9 @@ package com.example.ecommerce.service;
 import com.example.ecommerce.dto.ProductDTO;
 import com.example.ecommerce.entity.Category;
 import com.example.ecommerce.entity.Product;
+import com.example.ecommerce.exception.BusinessException;
 import com.example.ecommerce.repository.CategoryRepository;
+import com.example.ecommerce.repository.OrderItemRepository;
 import com.example.ecommerce.repository.ProductRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -20,6 +22,7 @@ public class ProductService {
 
     private final ProductRepository productRepository;
     private final CategoryRepository categoryRepository;
+    private final OrderItemRepository orderItemRepository;
 
     public List<ProductDTO> findAll() {
         return productRepository.findAll().stream()
@@ -72,6 +75,14 @@ public class ProductService {
         if (!productRepository.existsById(id)) {
             throw new EntityNotFoundException("Product not found with id: " + id);
         }
+        // Contrainte d'intégrité : impossible de supprimer un produit lié à des lignes de commande
+        List<?> orderItems = orderItemRepository.findByProductId(id);
+        if (!orderItems.isEmpty()) {
+            throw new BusinessException(
+                "Impossible de supprimer ce produit : il est référencé dans " + orderItems.size() +
+                " ligne(s) de commande. Veuillez d'abord supprimer ces lignes."
+            );
+        }
         productRepository.deleteById(id);
     }
 
@@ -87,3 +98,4 @@ public class ProductService {
                 .build();
     }
 }
+

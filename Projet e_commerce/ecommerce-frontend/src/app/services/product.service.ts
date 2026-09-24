@@ -32,6 +32,12 @@ export class ProductService {
     return this.http.get<Product>(`${this.apiUrl}/${id}`);
   }
 
+  searchProducts(keyword: string): Observable<Product[]> {
+    return this.http.get<Product[]>(`${this.apiUrl}/search`, {
+      params: { keyword }
+    });
+  }
+
   createProduct(product: Product): Observable<Product> {
     return this.http.post<Product>(this.apiUrl, product).pipe(
       tap(created => {

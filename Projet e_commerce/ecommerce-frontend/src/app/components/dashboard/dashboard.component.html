@@ -41,12 +41,16 @@
         <h3 class="kpi-number">{{ formatCurrency(totalRevenue) }}</h3>
       </div>
       <div class="kpi-footer">
-        <div class="trend-tag trend-positive">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <div class="trend-tag" [ngClass]="revenueTrend >= 0 ? 'trend-positive' : 'trend-negative'">
+          <svg *ngIf="revenueTrend >= 0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
             <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline>
             <polyline points="17 6 23 6 23 12"></polyline>
           </svg>
-          <span>+12.5%</span>
+          <svg *ngIf="revenueTrend < 0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="23 18 13.5 8.5 8.5 13.5 1 6"></polyline>
+            <polyline points="17 18 23 18 23 12"></polyline>
+          </svg>
+          <span>{{ revenueTrend >= 0 ? '+' : '' }}{{ revenueTrend }}%</span>
         </div>
         <span class="kpi-note">vs mois précédent</span>
       </div>
@@ -66,14 +70,18 @@
         <h3 class="kpi-number">{{ totalOrders }}</h3>
       </div>
       <div class="kpi-footer">
-        <div class="trend-tag trend-positive">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <div class="trend-tag" [ngClass]="ordersTrend >= 0 ? 'trend-positive' : 'trend-negative'">
+          <svg *ngIf="ordersTrend >= 0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
             <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline>
             <polyline points="17 6 23 6 23 12"></polyline>
           </svg>
-          <span>+8.2%</span>
+          <svg *ngIf="ordersTrend < 0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="23 18 13.5 8.5 8.5 13.5 1 6"></polyline>
+            <polyline points="17 18 23 18 23 12"></polyline>
+          </svg>
+          <span>{{ ordersTrend >= 0 ? '+' : '' }}{{ ordersTrend }}%</span>
         </div>
-        <span class="kpi-note">croissance du panier</span>
+        <span class="kpi-note">vs mois précédent</span>
       </div>
     </div>
 
@@ -92,14 +100,18 @@
         <h3 class="kpi-number">{{ totalCustomers }}</h3>
       </div>
       <div class="kpi-footer">
-        <div class="trend-tag trend-positive">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <div class="trend-tag" [ngClass]="customersTrend >= 0 ? 'trend-positive' : 'trend-negative'">
+          <svg *ngIf="customersTrend >= 0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
             <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline>
             <polyline points="17 6 23 6 23 12"></polyline>
           </svg>
-          <span>+4.8%</span>
+          <svg *ngIf="customersTrend < 0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="23 18 13.5 8.5 8.5 13.5 1 6"></polyline>
+            <polyline points="17 18 23 18 23 12"></polyline>
+          </svg>
+          <span>{{ customersTrend >= 0 ? '+' : '' }}{{ customersTrend }}%</span>
         </div>
-        <span class="kpi-note">nouveaux comptes</span>
+        <span class="kpi-note">vs mois précédent</span>
       </div>
     </div>
 

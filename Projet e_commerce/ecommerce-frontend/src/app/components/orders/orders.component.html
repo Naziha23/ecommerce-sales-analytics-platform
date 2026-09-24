@@ -1,9 +1,23 @@
 <div class="container">
   <div class="header-section">
     <h1>Liste des commandes</h1>
-    <button class="btn btn-primary" (click)="openAddModal()">
-      + Nouvelle commande
-    </button>
+    <button class="btn btn-primary" (click)="openAddModal()">+ Nouvelle commande</button>
+  </div>
+
+  <div class="entity-search">
+    <label for="order-search">Rechercher une commande</label>
+    <input
+      id="order-search"
+      type="search"
+      [(ngModel)]="searchTerm"
+      (ngModelChange)="applySearch()"
+      placeholder="ID, client, statut ou montant"
+    />
+    @if (searchTerm) {
+      <button type="button" class="search-reset" (click)="searchTerm = ''; applySearch()">
+        Réinitialiser
+      </button>
+    }
   </div>
 
   <div class="card">
@@ -24,7 +38,7 @@
           <td>#{{ order.id }}</td>
           <td>Client #{{ order.customerId }}</td>
           <td>{{ order.customerName || 'N/A' }}</td>
-          <td>{{ order.orderDate | date:'short' }}</td>
+          <td>{{ order.orderDate | date: 'short' }}</td>
           <td class="order-amount">{{ order.totalAmount }} €</td>
           <td>
             <span class="badge" [ngClass]="getStatusBadgeClass(order.status)">
@@ -32,10 +46,18 @@
             </span>
           </td>
           <td class="actions">
-            <button class="btn btn-icon btn-edit" (click)="openStatusModal(order)" title="Changer Statut">
+            <button
+              class="btn btn-icon btn-edit"
+              (click)="openStatusModal(order)"
+              title="Changer Statut"
+            >
               Statut
             </button>
-            <button class="btn btn-icon btn-delete" (click)="deleteOrder(order.id)" title="Supprimer">
+            <button
+              class="btn btn-icon btn-delete"
+              (click)="deleteOrder(order.id)"
+              title="Supprimer"
+            >
               Supprimer
             </button>
           </td>
@@ -57,7 +79,13 @@
 <div class="modal-overlay" *ngIf="showModal" (click)="closeModal()">
   <div class="modal" (click)="$event.stopPropagation()">
     <div class="modal-header">
-      <h2>{{ isStatusModal ? 'Mettre à jour le statut de la commande #' + currentOrder.id : 'Créer une commande' }}</h2>
+      <h2>
+        {{
+          isStatusModal
+            ? 'Mettre à jour le statut de la commande #' + currentOrder.id
+            : 'Créer une commande'
+        }}
+      </h2>
       <button class="close-btn" (click)="closeModal()">&times;</button>
     </div>
     <div class="modal-body">
@@ -65,18 +93,40 @@
         <ng-container *ngIf="!isStatusModal">
           <div class="form-group">
             <label for="customerId">ID Client</label>
-            <input type="number" id="customerId" name="customerId" [(ngModel)]="currentOrder.customerId" required min="1" class="form-control">
+            <input
+              type="number"
+              id="customerId"
+              name="customerId"
+              [(ngModel)]="currentOrder.customerId"
+              required
+              min="1"
+              class="form-control"
+            />
           </div>
 
           <div class="form-group">
             <label for="totalAmount">Montant total (€)</label>
-            <input type="number" id="totalAmount" name="totalAmount" [(ngModel)]="currentOrder.totalAmount" required min="0" class="form-control">
+            <input
+              type="number"
+              id="totalAmount"
+              name="totalAmount"
+              [(ngModel)]="currentOrder.totalAmount"
+              required
+              min="0"
+              class="form-control"
+            />
           </div>
         </ng-container>
 
         <div class="form-group">
           <label for="status">Statut de la commande</label>
-          <select id="status" name="status" [(ngModel)]="currentOrder.status" required class="form-control">
+          <select
+            id="status"
+            name="status"
+            [(ngModel)]="currentOrder.status"
+            required
+            class="form-control"
+          >
             <option *ngFor="let s of availableStatuses" [value]="s">{{ s }}</option>
           </select>
         </div>
