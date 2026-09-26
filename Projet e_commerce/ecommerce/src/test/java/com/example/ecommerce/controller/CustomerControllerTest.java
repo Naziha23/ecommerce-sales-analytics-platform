@@ -2,59 +2,78 @@ package com.example.ecommerce.controller;
 
 import com.example.ecommerce.dto.CustomerDTO;
 import com.example.ecommerce.service.CustomerService;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
-import org.springframework.http.MediaType;
-import org.springframework.test.web.servlet.MockMvc;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 
 import java.util.List;
 
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.mockito.Mockito.*;
 
-@WebMvcTest(controllers = CustomerController.class)
-public class CustomerControllerTest {
+@ExtendWith(MockitoExtension.class)
+class CustomerControllerTest {
 
-    @Autowired
-    private MockMvc mockMvc;
-
-    @MockitoBean
+    @Mock
     private CustomerService customerService;
 
-    @Autowired
-    private ObjectMapper objectMapper;
+    @InjectMocks
+    private CustomerController customerController;
 
     @Test
     @DisplayName("Devrait retourner tous les clients")
-    public void shouldGetAllCustomers() throws Exception {
+    void shouldGetAllCustomers() {
         CustomerDTO dto = CustomerDTO.builder().id(1L).firstName("John").lastName("Doe").build();
-        Mockito.when(customerService.findAll()).thenReturn(List.of(dto));
+        when(customerService.findAll()).thenReturn(List.of(dto));
 
-        mockMvc.perform(get("/api/customers"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.size()").value(1))
-                .andExpect(jsonPath("$[0].firstName").value("John"));
+        ResponseEntity<List<CustomerDTO>> response = customerController.getAllCustomers();
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertNotNull(response.getBody());
+        assertEquals(1, response.getBody().size());
+        assertEquals("John", response.getBody().get(0).getFirstName());
     }
 
     @Test
-    @DisplayName("Devrait créer un nouveau client")
-    public void shouldCreateCustomer() throws Exception {
+    @DisplayName("Devrait créer un nouveau client avec statut 201")
+    void shouldCreateCustomer() {
         CustomerDTO input = CustomerDTO.builder().firstName("Jane").build();
         CustomerDTO output = CustomerDTO.builder().id(2L).firstName("Jane").build();
-        
-        Mockito.when(customerService.create(any(CustomerDTO.class))).thenReturn(output);
+        when(customerService.create(any(CustomerDTO.class))).thenReturn(output);
 
-        mockMvc.perform(post("/api/customers")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(input)))
-                .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.id").value(2));
+        ResponseEntity<CustomerDTO> response = customerController.createCustomer(input);
+
+        assertEquals(HttpStatus.CREATED, response.getStatusCode());
+        assertNotNull(response.getBody());
+        assertEquals(2L, response.getBody().getId());
+    }
+
+    @Test
+    @DisplayName("Devrait retourner un client par son id")
+    void shouldGetCustomerById() {
+        CustomerDTO dto = CustomerDTO.builder().id(1L).firstName("Alice").build();
+        when(customerService.findById(1L)).thenReturn(dto);
+
+        ResponseEntity<CustomerDTO> response = customerController.getCustomerById(1L);
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals("Alice", response.getBody().getFirstName());
+    }
+
+    @Test
+    @DisplayName("Devrait supprimer un client et retourner 204")
+    void shouldDeleteCustomer() {
+        doNothing().when(customerService).delete(1L);
+
+        ResponseEntity<Void> response = customerController.deleteCustomer(1L);
+
+        assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
+        verify(customerService).delete(1L);
     }
 }

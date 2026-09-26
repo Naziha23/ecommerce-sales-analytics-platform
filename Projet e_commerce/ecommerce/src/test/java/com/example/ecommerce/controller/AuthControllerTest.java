@@ -1,77 +1,50 @@
 package com.example.ecommerce.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
-import org.springframework.http.MediaType;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.test.web.servlet.MockMvc;
 
-import java.util.Collection;
 import java.util.List;
 
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.mockito.Mockito.*;
 
-@WebMvcTest(controllers = AuthController.class)
-public class AuthControllerTest {
+@ExtendWith(MockitoExtension.class)
+class AuthControllerTest {
 
-    @Autowired
-    private MockMvc mockMvc;
-
-    @MockitoBean
+    @Mock
     private AuthenticationManager authenticationManager;
 
-    @Autowired
-    private ObjectMapper objectMapper;
+    @InjectMocks
+    private AuthController authController;
 
     @Test
     @DisplayName("Devrait authentifier l'utilisateur et retourner 200")
-    public void shouldLoginUser() throws Exception {
+    void shouldLoginUser() {
         AuthController.LoginRequest request = new AuthController.LoginRequest("admin", "password123");
-        
-        Authentication authentication = new Authentication() {
-            @Override
-            public Collection<? extends GrantedAuthority> getAuthorities() {
-                return List.of(new SimpleGrantedAuthority("ROLE_ADMIN"));
-            }
 
-            @Override
-            public Object getCredentials() { return null; }
+        Authentication mockAuth = mock(Authentication.class);
+        when(mockAuth.getName()).thenReturn("admin");
+        when(mockAuth.getAuthorities()).thenAnswer(inv ->
+                List.of(new SimpleGrantedAuthority("ROLE_ADMIN")));
+        when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class)))
+                .thenReturn(mockAuth);
 
-            @Override
-            public Object getDetails() { return null; }
+        ResponseEntity<AuthController.LoginResponse> response = authController.login(request);
 
-            @Override
-            public Object getPrincipal() { return "admin"; }
-
-            @Override
-            public boolean isAuthenticated() { return true; }
-
-            @Override
-            public void setAuthenticated(boolean isAuthenticated) throws IllegalArgumentException {}
-
-            @Override
-            public String getName() { return "admin"; }
-        };
-
-        Mockito.when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class)))
-               .thenReturn(authentication);
-
-        mockMvc.perform(post("/api/auth/login")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.username").value("admin"))
-                .andExpect(jsonPath("$.role").value("ADMIN"));
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertNotNull(response.getBody());
+        assertEquals("admin", response.getBody().username());
+        assertEquals("ADMIN", response.getBody().role());
     }
 }

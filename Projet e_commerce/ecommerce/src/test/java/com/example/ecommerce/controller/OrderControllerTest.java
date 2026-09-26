@@ -3,59 +3,78 @@ package com.example.ecommerce.controller;
 import com.example.ecommerce.dto.OrderDTO;
 import com.example.ecommerce.entity.OrderStatus;
 import com.example.ecommerce.service.OrderService;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
-import org.springframework.http.MediaType;
-import org.springframework.test.web.servlet.MockMvc;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 
 import java.util.List;
 
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.mockito.Mockito.*;
 
-@WebMvcTest(controllers = OrderController.class)
-public class OrderControllerTest {
+@ExtendWith(MockitoExtension.class)
+class OrderControllerTest {
 
-    @Autowired
-    private MockMvc mockMvc;
-
-    @MockitoBean
+    @Mock
     private OrderService orderService;
 
-    @Autowired
-    private ObjectMapper objectMapper;
+    @InjectMocks
+    private OrderController orderController;
 
     @Test
     @DisplayName("Devrait retourner toutes les commandes")
-    public void shouldGetAllOrders() throws Exception {
+    void shouldGetAllOrders() {
         OrderDTO dto = OrderDTO.builder().id(1L).customerId(1L).status(OrderStatus.PENDING).build();
-        Mockito.when(orderService.findAll()).thenReturn(List.of(dto));
+        when(orderService.findAll()).thenReturn(List.of(dto));
 
-        mockMvc.perform(get("/api/orders"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.size()").value(1))
-                .andExpect(jsonPath("$[0].status").value("PENDING"));
+        ResponseEntity<List<OrderDTO>> response = orderController.getAllOrders();
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertNotNull(response.getBody());
+        assertEquals(1, response.getBody().size());
+        assertEquals(OrderStatus.PENDING, response.getBody().get(0).getStatus());
     }
 
     @Test
-    @DisplayName("Devrait créer une nouvelle commande")
-    public void shouldCreateOrder() throws Exception {
+    @DisplayName("Devrait créer une nouvelle commande avec statut 201")
+    void shouldCreateOrder() {
         OrderDTO input = OrderDTO.builder().customerId(1L).build();
         OrderDTO output = OrderDTO.builder().id(2L).customerId(1L).status(OrderStatus.PENDING).build();
-        
-        Mockito.when(orderService.create(any(OrderDTO.class))).thenReturn(output);
+        when(orderService.create(any(OrderDTO.class))).thenReturn(output);
 
-        mockMvc.perform(post("/api/orders")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(input)))
-                .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.id").value(2));
+        ResponseEntity<OrderDTO> response = orderController.createOrder(input);
+
+        assertEquals(HttpStatus.CREATED, response.getStatusCode());
+        assertNotNull(response.getBody());
+        assertEquals(2L, response.getBody().getId());
+    }
+
+    @Test
+    @DisplayName("Devrait retourner une commande par son id")
+    void shouldGetOrderById() {
+        OrderDTO dto = OrderDTO.builder().id(1L).status(OrderStatus.SHIPPED).build();
+        when(orderService.findById(1L)).thenReturn(dto);
+
+        ResponseEntity<OrderDTO> response = orderController.getOrderById(1L);
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals(OrderStatus.SHIPPED, response.getBody().getStatus());
+    }
+
+    @Test
+    @DisplayName("Devrait supprimer une commande et retourner 204")
+    void shouldDeleteOrder() {
+        doNothing().when(orderService).delete(1L);
+
+        ResponseEntity<Void> response = orderController.deleteOrder(1L);
+
+        assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
+        verify(orderService).delete(1L);
     }
 }

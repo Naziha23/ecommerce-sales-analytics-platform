@@ -2,60 +2,79 @@ package com.example.ecommerce.controller;
 
 import com.example.ecommerce.dto.ProductDTO;
 import com.example.ecommerce.service.ProductService;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
-import org.springframework.http.MediaType;
-import org.springframework.test.web.servlet.MockMvc;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 
 import java.math.BigDecimal;
 import java.util.List;
 
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.mockito.Mockito.*;
 
-@WebMvcTest(controllers = ProductController.class)
-public class ProductControllerTest {
+@ExtendWith(MockitoExtension.class)
+class ProductControllerTest {
 
-    @Autowired
-    private MockMvc mockMvc;
-
-    @MockitoBean
+    @Mock
     private ProductService productService;
 
-    @Autowired
-    private ObjectMapper objectMapper;
+    @InjectMocks
+    private ProductController productController;
 
     @Test
     @DisplayName("Devrait retourner tous les produits")
-    public void shouldGetAllProducts() throws Exception {
+    void shouldGetAllProducts() {
         ProductDTO dto = ProductDTO.builder().id(1L).name("Laptop").price(new BigDecimal("1000")).build();
-        Mockito.when(productService.findAll()).thenReturn(List.of(dto));
+        when(productService.findAll()).thenReturn(List.of(dto));
 
-        mockMvc.perform(get("/api/products"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.size()").value(1))
-                .andExpect(jsonPath("$[0].name").value("Laptop"));
+        ResponseEntity<List<ProductDTO>> response = productController.getAllProducts();
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertNotNull(response.getBody());
+        assertEquals(1, response.getBody().size());
+        assertEquals("Laptop", response.getBody().get(0).getName());
     }
 
     @Test
-    @DisplayName("Devrait créer un nouveau produit")
-    public void shouldCreateProduct() throws Exception {
+    @DisplayName("Devrait créer un nouveau produit avec statut 201")
+    void shouldCreateProduct() {
         ProductDTO input = ProductDTO.builder().name("Mouse").build();
         ProductDTO output = ProductDTO.builder().id(2L).name("Mouse").build();
-        
-        Mockito.when(productService.create(any(ProductDTO.class))).thenReturn(output);
+        when(productService.create(any(ProductDTO.class))).thenReturn(output);
 
-        mockMvc.perform(post("/api/products")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(input)))
-                .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.id").value(2));
+        ResponseEntity<ProductDTO> response = productController.createProduct(input);
+
+        assertEquals(HttpStatus.CREATED, response.getStatusCode());
+        assertNotNull(response.getBody());
+        assertEquals(2L, response.getBody().getId());
+    }
+
+    @Test
+    @DisplayName("Devrait retourner un produit par son id")
+    void shouldGetProductById() {
+        ProductDTO dto = ProductDTO.builder().id(1L).name("Keyboard").build();
+        when(productService.findById(1L)).thenReturn(dto);
+
+        ResponseEntity<ProductDTO> response = productController.getProductById(1L);
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals("Keyboard", response.getBody().getName());
+    }
+
+    @Test
+    @DisplayName("Devrait supprimer un produit et retourner 204")
+    void shouldDeleteProduct() {
+        doNothing().when(productService).delete(1L);
+
+        ResponseEntity<Void> response = productController.deleteProduct(1L);
+
+        assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
+        verify(productService).delete(1L);
     }
 }

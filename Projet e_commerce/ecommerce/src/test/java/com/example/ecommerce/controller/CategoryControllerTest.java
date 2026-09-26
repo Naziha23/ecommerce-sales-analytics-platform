@@ -2,61 +2,80 @@ package com.example.ecommerce.controller;
 
 import com.example.ecommerce.dto.CategoryDTO;
 import com.example.ecommerce.service.CategoryService;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
-import org.springframework.http.MediaType;
-import org.springframework.test.web.servlet.MockMvc;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 
 import java.util.List;
 
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.mockito.Mockito.*;
 
-@WebMvcTest(CategoryController.class)
-public class CategoryControllerTest {
+@ExtendWith(MockitoExtension.class)
+class CategoryControllerTest {
 
-    @Autowired
-    private MockMvc mockMvc;
-
-    @MockitoBean
+    @Mock
     private CategoryService categoryService;
 
-    @Autowired
-    private ObjectMapper objectMapper;
+    @InjectMocks
+    private CategoryController categoryController;
 
     @Test
     @DisplayName("Devrait retourner toutes les catégories avec le statut 200")
-    public void shouldGetAllCategories() throws Exception {
-        CategoryDTO category = CategoryDTO.builder().id(1L).name("Test Category").description("Desc").build();
-        Mockito.when(categoryService.findAll()).thenReturn(List.of(category));
+    void shouldGetAllCategories() {
+        CategoryDTO dto = CategoryDTO.builder().id(1L).name("Test Category").description("Desc").build();
+        when(categoryService.findAll()).thenReturn(List.of(dto));
 
-        mockMvc.perform(get("/api/categories")
-                .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.size()").value(1))
-                .andExpect(jsonPath("$[0].name").value("Test Category"));
+        ResponseEntity<List<CategoryDTO>> response = categoryController.getAllCategories();
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertNotNull(response.getBody());
+        assertEquals(1, response.getBody().size());
+        assertEquals("Test Category", response.getBody().get(0).getName());
     }
 
     @Test
     @DisplayName("Devrait créer une nouvelle catégorie avec le statut 201")
-    public void shouldCreateCategory() throws Exception {
-        CategoryDTO inputDto = CategoryDTO.builder().name("New Category").description("New Desc").build();
-        CategoryDTO returnedDto = CategoryDTO.builder().id(2L).name("New Category").description("New Desc").build();
-        
-        Mockito.when(categoryService.create(any(CategoryDTO.class))).thenReturn(returnedDto);
+    void shouldCreateCategory() {
+        CategoryDTO input = CategoryDTO.builder().name("New Category").description("New Desc").build();
+        CategoryDTO saved = CategoryDTO.builder().id(2L).name("New Category").description("New Desc").build();
+        when(categoryService.create(any(CategoryDTO.class))).thenReturn(saved);
 
-        mockMvc.perform(post("/api/categories")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(inputDto)))
-                .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.id").value(2))
-                .andExpect(jsonPath("$.name").value("New Category"));
+        ResponseEntity<CategoryDTO> response = categoryController.createCategory(input);
+
+        assertEquals(HttpStatus.CREATED, response.getStatusCode());
+        assertNotNull(response.getBody());
+        assertEquals(2L, response.getBody().getId());
+        assertEquals("New Category", response.getBody().getName());
+    }
+
+    @Test
+    @DisplayName("Devrait retourner une catégorie par son id")
+    void shouldGetCategoryById() {
+        CategoryDTO dto = CategoryDTO.builder().id(1L).name("Found").build();
+        when(categoryService.findById(1L)).thenReturn(dto);
+
+        ResponseEntity<CategoryDTO> response = categoryController.getCategoryById(1L);
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals("Found", response.getBody().getName());
+    }
+
+    @Test
+    @DisplayName("Devrait supprimer une catégorie et retourner 204")
+    void shouldDeleteCategory() {
+        doNothing().when(categoryService).delete(1L);
+
+        ResponseEntity<Void> response = categoryController.deleteCategory(1L);
+
+        assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
+        verify(categoryService).delete(1L);
     }
 }

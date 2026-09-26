@@ -3,58 +3,78 @@ package com.example.ecommerce.controller;
 import com.example.ecommerce.dto.PaymentDTO;
 import com.example.ecommerce.entity.PaymentMethod;
 import com.example.ecommerce.service.PaymentService;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
-import org.springframework.http.MediaType;
-import org.springframework.test.web.servlet.MockMvc;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 
 import java.util.List;
 
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.mockito.Mockito.*;
 
-@WebMvcTest(controllers = PaymentController.class)
-public class PaymentControllerTest {
+@ExtendWith(MockitoExtension.class)
+class PaymentControllerTest {
 
-    @Autowired
-    private MockMvc mockMvc;
-
-    @MockitoBean
+    @Mock
     private PaymentService paymentService;
 
-    @Autowired
-    private ObjectMapper objectMapper;
+    @InjectMocks
+    private PaymentController paymentController;
 
     @Test
     @DisplayName("Devrait retourner tous les paiements")
-    public void shouldGetAllPayments() throws Exception {
+    void shouldGetAllPayments() {
         PaymentDTO dto = PaymentDTO.builder().id(1L).orderId(1L).method(PaymentMethod.CREDIT_CARD).build();
-        Mockito.when(paymentService.findAll()).thenReturn(List.of(dto));
+        when(paymentService.findAll()).thenReturn(List.of(dto));
 
-        mockMvc.perform(get("/api/payments"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.size()").value(1))
-                .andExpect(jsonPath("$[0].method").value("CREDIT_CARD"));
+        ResponseEntity<List<PaymentDTO>> response = paymentController.getAllPayments();
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertNotNull(response.getBody());
+        assertEquals(1, response.getBody().size());
+        assertEquals(PaymentMethod.CREDIT_CARD, response.getBody().get(0).getMethod());
     }
 
     @Test
-    @DisplayName("Devrait créer un nouveau paiement")
-    public void shouldCreatePayment() throws Exception {
+    @DisplayName("Devrait créer un nouveau paiement avec statut 201")
+    void shouldCreatePayment() {
         PaymentDTO input = PaymentDTO.builder().orderId(1L).method(PaymentMethod.PAYPAL).build();
         PaymentDTO output = PaymentDTO.builder().id(2L).orderId(1L).method(PaymentMethod.PAYPAL).build();
-        
-        Mockito.when(paymentService.create(any(PaymentDTO.class))).thenReturn(output);
+        when(paymentService.create(any(PaymentDTO.class))).thenReturn(output);
 
-        mockMvc.perform(post("/api/payments")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(input)))
-                .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.id").value(2));
+        ResponseEntity<PaymentDTO> response = paymentController.createPayment(input);
+
+        assertEquals(HttpStatus.CREATED, response.getStatusCode());
+        assertNotNull(response.getBody());
+        assertEquals(2L, response.getBody().getId());
+    }
+
+    @Test
+    @DisplayName("Devrait retourner un paiement par son id")
+    void shouldGetPaymentById() {
+        PaymentDTO dto = PaymentDTO.builder().id(1L).method(PaymentMethod.PAYPAL).build();
+        when(paymentService.findById(1L)).thenReturn(dto);
+
+        ResponseEntity<PaymentDTO> response = paymentController.getPaymentById(1L);
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals(PaymentMethod.PAYPAL, response.getBody().getMethod());
+    }
+
+    @Test
+    @DisplayName("Devrait supprimer un paiement et retourner 204")
+    void shouldDeletePayment() {
+        doNothing().when(paymentService).delete(1L);
+
+        ResponseEntity<Void> response = paymentController.deletePayment(1L);
+
+        assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
+        verify(paymentService).delete(1L);
     }
 }
