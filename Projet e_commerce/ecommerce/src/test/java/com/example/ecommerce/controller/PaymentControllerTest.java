@@ -30,7 +30,7 @@ class PaymentControllerTest {
     @Test
     @DisplayName("Devrait retourner tous les paiements")
     void shouldGetAllPayments() {
-        PaymentDTO dto = PaymentDTO.builder().id(1L).orderId(1L).method(PaymentMethod.CREDIT_CARD).build();
+        PaymentDTO dto = PaymentDTO.builder().id(1L).orderId(1L).method(PaymentMethod.CARD).build();
         when(paymentService.findAll()).thenReturn(List.of(dto));
 
         ResponseEntity<List<PaymentDTO>> response = paymentController.getAllPayments();
@@ -38,7 +38,7 @@ class PaymentControllerTest {
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertNotNull(response.getBody());
         assertEquals(1, response.getBody().size());
-        assertEquals(PaymentMethod.CREDIT_CARD, response.getBody().get(0).getMethod());
+        assertEquals(PaymentMethod.CARD, response.getBody().get(0).getMethod());
     }
 
     @Test
