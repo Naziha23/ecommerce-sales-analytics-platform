@@ -32,6 +32,9 @@ class ProductServiceTest {
     @Mock
     private CategoryRepository categoryRepository;
 
+    @Mock
+    private com.example.ecommerce.repository.OrderItemRepository orderItemRepository;
+
     @InjectMocks
     private ProductService productService;
 

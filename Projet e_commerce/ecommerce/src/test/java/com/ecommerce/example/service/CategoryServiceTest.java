@@ -26,6 +26,9 @@ class CategoryServiceTest {
     @Mock
     private CategoryRepository categoryRepository;
 
+    @Mock
+    private com.example.ecommerce.repository.ProductRepository productRepository;
+
     @InjectMocks
     private CategoryService categoryService;
 

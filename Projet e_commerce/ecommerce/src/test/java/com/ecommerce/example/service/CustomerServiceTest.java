@@ -27,6 +27,9 @@ class CustomerServiceTest {
     @Mock
     private CustomerRepository customerRepository;
 
+    @Mock
+    private com.example.ecommerce.repository.OrderRepository orderRepository;
+
     @InjectMocks
     private CustomerService customerService;
 
