@@ -1,0 +1,75 @@
+version: '3.8'
+
+services:
+  # =========================================================
+  # 1. MySQL Database Service
+  # =========================================================
+  mysql:
+    build:
+      context: ./MySQL
+      dockerfile: Dockerfile
+    container_name: ecommerce-mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: 12345
+      MYSQL_DATABASE: ecommerce_analytics
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+      - ../database/script.sql:/docker-entrypoint-initdb.d/01-init.sql:ro
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p12345"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+    networks:
+      - ecommerce-network
+
+  # =========================================================
+  # 2. Spring Boot Backend Service
+  # =========================================================
+  backend:
+    build:
+      context: ../ecommerce
+      dockerfile: ../docker/Spring Boot/Dockerfile
+    container_name: ecommerce-backend
+    restart: always
+    ports:
+      - "8081:8081"
+    environment:
+      SERVER_PORT: 8081
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/ecommerce_analytics?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true&createDatabaseIfNotExist=true
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: 12345
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks:
+      - ecommerce-network
+
+  # =========================================================
+  # 3. Angular Frontend Service
+  # =========================================================
+  frontend:
+    build:
+      context: ../ecommerce-frontend
+      dockerfile: ../docker/Angular/Dockerfile
+    container_name: ecommerce-frontend
+    restart: always
+    ports:
+      - "4200:80"
+    depends_on:
+      - backend
+    networks:
+      - ecommerce-network
+
+networks:
+  ecommerce-network:
+    driver: bridge
+
+volumes:
+  mysql-data:
+    driver: local
