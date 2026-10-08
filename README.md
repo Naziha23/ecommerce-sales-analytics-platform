@@ -2,7 +2,7 @@
 
 A full-stack E-Commerce Sales Analytics Platform designed to manage online sales activities and transform business data into useful business insights.
 
-The project is developed using **Spring Boot, Angular, and MySQL**, with a DevOps workflow based on **Git, GitHub, Maven, Jenkins, and Docker**.
+The project is developed using **Spring Boot, Angular, and MySQL**, with a DevOps workflow based on **Git, GitHub, Maven, Jenkins, Docker, Docker Compose, and Terraform**.
 
 ---
 
@@ -19,39 +19,59 @@ The platform allows an e-commerce business to manage its main activities:
 - User authentication
 - Sales analytics
 
-The application follows a layered architecture with a clear separation between the frontend, backend, database, and analytics components.
+The application follows a layered architecture with a clear separation between the frontend, backend, database, analytics, and DevOps components.
 
 ---
 
 ## Architecture
 
 ```text
-                    +---------------------+
-                    |       Angular       |
-                    |      Frontend      |
-                    +----------+----------+
-                               |
-                            REST API
-                               |
-                               v
-                    +---------------------+
-                    |    Spring Boot      |
-                    |      Backend        |
-                    +----------+----------+
-                               |
-                         JPA / Hibernate
-                               |
-                               v
-                    +---------------------+
-                    |       MySQL         |
-                    |      Database       |
-                    +----------+----------+
-                               |
-                               v
-                    +---------------------+
-                    |      Power BI       |
-                    |     Analytics       |
-                    +---------------------+
+                         Angular
+                        Frontend
+                           |
+                           | REST API
+                           v
+                    Spring Boot
+                       Backend
+                           |
+                     JPA / Hibernate
+                           |
+                           v
+                         MySQL
+                        Database
+                           |
+                           v
+                        Power BI
+                        Analytics
+```
+
+The application can also be containerized using Docker:
+
+```text
+                    Docker Compose
+                          |
+          +---------------+---------------+
+          |               |               |
+          v               v               v
+       Angular       Spring Boot        MySQL
+      Container       Container        Container
+          |               |
+          +------ REST API+
+```
+
+Terraform is used to learn and automate infrastructure management with Docker:
+
+```text
+                    Terraform
+                        |
+                  Docker Provider
+                        |
+                        v
+                     Docker
+                        |
+          +-------------+-------------+
+          |             |             |
+       Angular      Spring Boot      MySQL
 ```
 
 ---
@@ -107,28 +127,30 @@ The application follows a layered architecture with a clear separation between t
 - GitHub Webhooks
 - Maven
 - Jenkins
+- Jenkins Distributed Builds
 - Docker
 - Docker Compose
+- Terraform
 
 ---
 
-## Database Model
+# Database Model
 
 The application uses a relational database to manage customers, products, orders, payments, and users.
 
-### Main Entities
+## Main Entities
 
-| Entity    | Description                         |
-| --------- | ----------------------------------- |
-| Category  | Product categories                  |
-| Product   | Products available in the store     |
-| Customer  | Customer information                |
-| Order     | Customer orders                     |
-| OrderItem | Products included in an order       |
-| Payment   | Payment information                 |
-| User      | Authentication and user information |
+| Entity | Description |
+|---|---|
+| Category | Product categories |
+| Product | Products available in the store |
+| Customer | Customer information |
+| Order | Customer orders |
+| OrderItem | Products included in an order |
+| Payment | Payment information |
+| User | Authentication and user information |
 
-### Entity Relationships
+## Entity Relationships
 
 ```text
 Category
@@ -153,7 +175,6 @@ Order
    | 1
 Customer
 
-
 Order
    |
    | 1
@@ -161,13 +182,12 @@ Order
    | *
 Payment
 
-
 User
 ```
 
 ---
 
-## Authentication & Authorization
+# Authentication & Authorization
 
 The application implements authentication and authorization using **Spring Security**.
 
@@ -194,7 +214,7 @@ Test credentials can be configured locally for development purposes.
 
 ---
 
-## Analytics
+# Analytics
 
 The platform is designed to provide business indicators such as:
 
@@ -207,7 +227,7 @@ The platform is designed to provide business indicators such as:
 - Sales by city or region
 - Most active customers
 
-### Total Revenue
+## Total Revenue
 
 ```sql
 SELECT
@@ -216,7 +236,7 @@ FROM orders
 WHERE status <> 'CANCELLED';
 ```
 
-### Monthly Revenue
+## Monthly Revenue
 
 ```sql
 SELECT
@@ -267,7 +287,7 @@ Example location:
 Projet e_commerce/ecommerce/target/surefire-reports/*.xml
 ```
 
-These reports are published by Jenkins to display the automated test results.
+These reports are published by Jenkins to display automated test results.
 
 ---
 
@@ -283,8 +303,6 @@ JaCoCo provides coverage metrics including:
 - Method coverage
 - Class coverage
 
-The coverage report is generated as part of the Maven test/build process.
-
 Example command:
 
 ```bash
@@ -297,7 +315,7 @@ The generated report is available at:
 Projet e_commerce/ecommerce/target/site/jacoco/index.html
 ```
 
-JaCoCo allows the test coverage of the backend application to be monitored during development and continuous integration.
+JaCoCo allows test coverage to be monitored during development and continuous integration.
 
 ---
 
@@ -323,28 +341,133 @@ The generated PMD report can then be reviewed as part of the code quality proces
 
 ---
 
+# Dockerization
+
+The application includes Docker configuration for its main components.
+
+The Docker structure is:
+
+```text
+docker/
+├── Angular/
+│   ├── .dockerignore
+│   ├── Dockerfile
+│   └── nginx.conf
+│
+├── MySQL/
+│   ├── Dockerfile
+│   └── init.sql
+│
+├── Spring Boot/
+│   ├── .dockerignore
+│   └── Dockerfile
+│
+└── docker-compose.yml
+```
+
+### Angular
+
+The Angular frontend is containerized and served using **Nginx**.
+
+- `Dockerfile` builds the Angular application.
+- `.dockerignore` excludes unnecessary files.
+- `nginx.conf` configures Nginx to serve the Angular application.
+
+### Spring Boot
+
+The Spring Boot backend is packaged and executed inside a Docker container.
+
+- `Dockerfile` defines the backend image.
+- `.dockerignore` excludes unnecessary files from the Docker build context.
+
+### MySQL
+
+MySQL is containerized and initialized using SQL scripts.
+
+- `Dockerfile` defines the MySQL image configuration.
+- `init.sql` contains database initialization instructions.
+
+### Docker Compose
+
+Docker Compose is used to orchestrate the application services:
+
+```text
+Docker Compose
+      |
+      +---- Angular
+      |
+      +---- Spring Boot
+      |
+      +---- MySQL
+```
+
+The objective is to run the complete application as a multi-container environment.
+
+---
+
+# Terraform
+
+Terraform is introduced as an **Infrastructure as Code (IaC)** tool.
+
+In this project, Terraform is being used with the **Docker provider** to learn how infrastructure can be defined and managed through configuration files without requiring a cloud provider such as AWS.
+
+The relationship is:
+
+```text
+Terraform
+    |
+    v
+Docker Provider
+    |
+    v
+Docker Desktop
+    |
+    +---- Containers
+    +---- Networks
+    +---- Volumes
+```
+
+A separate Terraform directory is used:
+
+```text
+terraform/
+├── main.tf
+├── variables.tf
+└── outputs.tf
+```
+
+The initial Terraform workflow is:
+
+```bash
+terraform init
+terraform validate
+terraform plan
+terraform apply
+terraform destroy
+```
+
+A first test was performed by using Terraform with Docker to create and manage an Nginx container.
+
+The Terraform configuration will progressively be integrated with the project's Docker infrastructure.
+
+---
+
 # Project Structure
 
 ```text
 ecommerce-sales-analytics-platform/
 │
 ├── Projet e_commerce/
-│   │
 │   └── ecommerce/
-│       │
 │       ├── src/
 │       │   ├── main/
 │       │   │   ├── java/
 │       │   │   └── resources/
-│       │   │
 │       │   └── test/
-│       │
 │       ├── target/
-│       │
 │       └── pom.xml
 │
 ├── ecommerce-frontend/
-│   │
 │   ├── src/
 │   ├── public/
 │   ├── angular.json
@@ -354,13 +477,27 @@ ecommerce-sales-analytics-platform/
 │   └── ecommerce_analytics.sql
 │
 ├── docker/
+│   ├── Angular/
+│   │   ├── .dockerignore
+│   │   ├── Dockerfile
+│   │   └── nginx.conf
+│   ├── MySQL/
+│   │   ├── Dockerfile
+│   │   └── init.sql
+│   ├── Spring Boot/
+│   │   ├── .dockerignore
+│   │   └── Dockerfile
+│   └── docker-compose.yml
+│
+├── terraform/
+│   ├── main.tf
+│   ├── variables.tf
+│   └── outputs.tf
 │
 ├── Jenkinsfile
-│
-└── README.md
+├── README.md
+└── .gitignore
 ```
-
-The project structure may evolve as new features and DevOps components are implemented.
 
 ---
 
@@ -412,20 +549,36 @@ The project structure may evolve as new features and DevOps components are imple
 - [x] JUnit result publication
 - [x] JaCoCo coverage generation
 - [x] PMD analysis
+- [x] Jenkins distributed build with a separate agent
+
+### Containerization
+
+- [x] Docker project structure
+- [x] Angular Docker configuration
+- [x] Spring Boot Docker configuration
+- [x] MySQL Docker configuration
+- [x] Nginx configuration
+- [x] Docker Compose configuration
+
+### Infrastructure as Code
+
+- [x] Terraform installation
+- [x] Docker provider configuration
+- [x] Terraform initialization
+- [x] Terraform validation
+- [x] Terraform plan/apply/destroy workflow
+- [x] Initial Terraform + Docker test
 
 ## In Progress
 
-- [ ] Dockerization
-- [ ] Docker Compose configuration
+- [ ] Full Terraform management of the E-Commerce Docker infrastructure
+- [ ] Integration of Terraform into the Jenkins workflow
 
 ## Planned
 
-- [ ] Containerized Angular frontend
-- [ ] Containerized Spring Boot backend
-- [ ] MySQL container
-- [ ] Multi-container application
-- [ ] Complete Docker Compose workflow
-- [ ] Containerized deployment workflow
+- [ ] Complete Infrastructure as Code workflow
+- [ ] Automated infrastructure provisioning through Jenkins
+- [ ] Complete CI/CD workflow combining Jenkins, Docker, and Terraform
 
 ---
 
@@ -441,27 +594,32 @@ Developer
     |
     | Webhook
     v
- Jenkins
+ Jenkins Controller
     |
-    +--------------------+
-    |                    |
-    v                    v
-Maven Validate       Maven Compile
-    |                    |
-    +---------+----------+
-              |
-              v
-         Maven Test
-              |
-      +-------+-------+
-      |       |       |
-      v       v       v
-    JUnit   JaCoCo   PMD
-   Reports Coverage Analysis
-              |
-              v
-       Dockerization
-         (In Progress)
+    | Distributed Build
+    v
+ Jenkins Agent
+    |
+    +-- Maven Validate
+    |
+    +-- Maven Compile
+    |
+    +-- Maven Test
+    |
+    +-- JUnit Reports
+    |
+    +-- JaCoCo Coverage
+    |
+    +-- PMD Analysis
+    |
+    v
+ Docker
+    |
+    v
+ Terraform
+    |
+    v
+ Docker Infrastructure
 ```
 
 ---
@@ -475,7 +633,10 @@ GitHub
    |
    | Webhook
    v
-Jenkins
+Jenkins Controller
+   |
+   v
+Jenkins Agent
    |
    +-- Validate
    |
@@ -488,10 +649,14 @@ Jenkins
    +-- JaCoCo Coverage
    |
    +-- PMD Analysis
-   |
-   v
-Dockerization
-   (In Progress)
+```
+
+Jenkins uses a separate **Unix agent** to execute builds remotely.
+
+Example workspace:
+
+```text
+/home/jenkinsagent/workspace/E-commerce_validate
 ```
 
 ### JUnit Test Reports
@@ -518,28 +683,6 @@ The combination of **JUnit, JaCoCo, and PMD** provides automated testing, test c
 
 ---
 
-# Dockerization
-
-Dockerization is currently under development.
-
-The planned containerized architecture is:
-
-```text
-                 Docker Compose
-                       |
-        +--------------+--------------+
-        |              |              |
-        v              v              v
-    Angular        Spring Boot      MySQL
-    Frontend         Backend       Database
-        |              |
-        +------ REST --+
-```
-
-The final objective is to run the complete application using Docker Compose.
-
----
-
 # Local Setup
 
 ## 1. Clone the Repository
@@ -554,13 +697,13 @@ cd ecommerce-sales-analytics-platform
 
 ## 2. Database Setup
 
-Create the MySQL database:
+For a traditional local setup, create the MySQL database:
 
 ```text
 ecommerce_analytics
 ```
 
-Then execute the SQL script:
+Then execute:
 
 ```text
 database/ecommerce_analytics.sql
@@ -635,6 +778,82 @@ http://localhost:4200
 
 ---
 
+## 5. Docker Setup
+
+The containerized application can be managed using Docker Compose.
+
+From the Docker directory:
+
+```bash
+cd docker
+```
+
+Build and start the services:
+
+```bash
+docker compose up --build
+```
+
+To run the services in detached mode:
+
+```bash
+docker compose up -d --build
+```
+
+To check running containers:
+
+```bash
+docker ps
+```
+
+To stop the services:
+
+```bash
+docker compose down
+```
+
+---
+
+## 6. Terraform Setup
+
+Navigate to the Terraform directory:
+
+```bash
+cd terraform
+```
+
+Initialize Terraform:
+
+```bash
+terraform init
+```
+
+Validate the configuration:
+
+```bash
+terraform validate
+```
+
+Review the execution plan:
+
+```bash
+terraform plan
+```
+
+Apply the configuration:
+
+```bash
+terraform apply
+```
+
+To remove resources managed by Terraform:
+
+```bash
+terraform destroy
+```
+
+---
+
 # Application Communication
 
 The Angular frontend communicates with the Spring Boot backend through REST APIs.
@@ -678,10 +897,13 @@ The main objectives of this project are to:
 - Measure test coverage with JaCoCo
 - Apply static code analysis with PMD
 - Configure Jenkins CI
+- Implement Jenkins distributed builds
 - Automate Maven builds and tests
 - Integrate GitHub with Jenkins
-- Learn Docker containerization
-- Implement Docker Compose
+- Containerize the application using Docker
+- Orchestrate services using Docker Compose
+- Learn Infrastructure as Code with Terraform
+- Manage Docker infrastructure using Terraform
 - Develop a complete DevOps workflow
 
 ---

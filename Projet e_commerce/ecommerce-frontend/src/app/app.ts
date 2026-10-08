@@ -22,6 +22,7 @@ export class App implements OnInit, OnDestroy {
   protected readonly authService = inject(AuthService);
   protected readonly notifications = signal<AppNotification[]>([]);
   protected readonly unreadCount = signal(0);
+  protected readonly mobileMenuOpen = signal(false);
   protected showNotifications = false;
   private readonly productService = inject(ProductService);
   private readonly router = inject(Router);
@@ -33,10 +34,11 @@ export class App implements OnInit, OnDestroy {
       this.refreshNotifications();
     }
     
-    // Refresh on navigation to keep data updated without full reload
+    // Refresh on navigation and close mobile drawer
     this.router.events.pipe(
       filter(event => event instanceof NavigationEnd)
     ).subscribe(() => {
+      this.closeMobileMenu();
       if (this.authService.isAuthenticated()) {
         this.refreshNotifications();
       }
@@ -89,6 +91,14 @@ export class App implements OnInit, OnDestroy {
       this.lastSeenCount = this.notifications().length;
       this.unreadCount.set(0);
     }
+  }
+
+  toggleMobileMenu(): void {
+    this.mobileMenuOpen.update(v => !v);
+  }
+
+  closeMobileMenu(): void {
+    this.mobileMenuOpen.set(false);
   }
 
   logout(): void {

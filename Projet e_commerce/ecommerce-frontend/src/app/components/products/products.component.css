@@ -114,27 +114,41 @@
 }
 
 .btn-icon {
-  padding: 0.5rem;
-  font-size: 0.875rem;
-  background: transparent;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.45rem 0.85rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  border-radius: 6px;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: all 0.15s ease;
+  line-height: 1.2;
 }
 
 .btn-edit {
-  color: var(--primary-color);
+  background-color: #EEF2FF;
+  color: #4F46E5;
+  border-color: #C7D2FE;
 }
 
 .btn-edit:hover {
-  background-color: #EEF2FF;
-  border-radius: var(--radius-md);
+  background-color: #4338CA;
+  color: #FFFFFF;
+  border-color: #4338CA;
 }
 
 .btn-delete {
-  color: var(--danger-color);
+  background-color: #FEF2F2;
+  color: #DC2626;
+  border-color: #FECACA;
 }
 
 .btn-delete:hover {
-  background-color: #FEF2F2;
-  border-radius: var(--radius-md);
+  background-color: #DC2626;
+  color: #FFFFFF;
+  border-color: #DC2626;
 }
 
 /* Card & Table */
@@ -142,18 +156,26 @@
   background-color: #FFFFFF;
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-md);
-  overflow: hidden;
+  overflow-x: auto !important;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+  width: 100%;
+  max-width: 100%;
+  display: block;
 }
 
 .table {
   width: 100%;
+  min-width: 860px;
   border-collapse: collapse;
   text-align: left;
 }
 
 .table th,
 .table td {
-  padding: 1rem 1.5rem;
+  padding: 0.95rem 1.15rem;
+  white-space: nowrap;
+  vertical-align: middle;
 }
 
 .table th {
@@ -205,9 +227,17 @@
   font-weight: 500;
 }
 
-.actions {
-  display: flex;
-  gap: 0.5rem;
+.actions,
+td.actions {
+  white-space: nowrap;
+  min-width: 170px;
+  text-align: right;
+  vertical-align: middle;
+}
+
+td.actions .btn,
+.actions .btn {
+  margin-left: 0.35rem;
 }
 
 /* Modal */
@@ -357,5 +387,45 @@ label {
 @keyframes spin {
   to {
     transform: rotate(360deg);
+  }
+}
+
+@media (max-width: 640px) {
+  .container {
+    padding: 1rem 0.5rem;
+  }
+
+  .card {
+    border-radius: 8px;
+  }
+
+  .table th,
+  .table td {
+    padding: 0.75rem 0.85rem;
+    font-size: 0.82rem;
+  }
+
+  .product-search {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .product-search input {
+    min-width: 0;
+    width: 100%;
+  }
+
+  .product-search label {
+    width: 100%;
+  }
+
+  .header-section {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.75rem;
+  }
+
+  .header-section h1 {
+    font-size: 1.35rem;
   }
 }

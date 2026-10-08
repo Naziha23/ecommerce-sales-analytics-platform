@@ -3,6 +3,8 @@ import { HttpClient } from '@angular/common/http';
 import { Observable, of, tap } from 'rxjs';
 import { Product } from '../models/product';
 
+import { getApiBaseUrl } from '../config/api.config';
+
 export type { Product };
 
 @Injectable({
@@ -10,7 +12,7 @@ export type { Product };
 })
 export class ProductService {
 
-  private apiUrl = 'http://127.0.0.1:8081/api/products';
+  private apiUrl = `${getApiBaseUrl()}/products`;
   private cache: Product[] | null = null;
 
   constructor(private http: HttpClient) { }

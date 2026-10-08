@@ -145,3 +145,24 @@ button[type="submit"]:disabled {
   color: #b42318;
   font-size: 0.85rem;
 }
+
+@media (max-width: 480px) {
+  .login-page {
+    padding: 1rem;
+  }
+
+  .login-panel {
+    width: 100%;
+    padding: 2rem 1.25rem;
+    border-radius: 10px;
+  }
+
+  h1 {
+    font-size: 1.55rem;
+  }
+
+  .intro {
+    margin-bottom: 1.25rem;
+    font-size: 0.9rem;
+  }
+}

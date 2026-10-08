@@ -1,8 +1,14 @@
 @if (authService.isAuthenticated()) {
 <div class="admin-layout">
   <app-toast></app-toast>
+
+  <!-- Mobile Backdrop Overlay -->
+  @if (mobileMenuOpen()) {
+  <div class="sidebar-backdrop" (click)="closeMobileMenu()"></div>
+  }
+
   <!-- SIDEBAR NAVIGATION -->
-  <aside class="sidebar">
+  <aside class="sidebar" [class.mobile-open]="mobileMenuOpen()">
     <!-- Brand Logo -->
     <div class="sidebar-brand">
       <div class="brand-icon-wrapper">
@@ -34,7 +40,7 @@
     <!-- Navigation Links -->
     <div class="nav-section-title">MENU PRINCIPAL</div>
     <nav class="sidebar-nav">
-      <a routerLink="/dashboard" routerLinkActive="active" class="nav-item">
+      <a routerLink="/dashboard" routerLinkActive="active" (click)="closeMobileMenu()" class="nav-item">
         <svg class="nav-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
           stroke-linecap="round" stroke-linejoin="round">
           <rect x="3" y="3" width="7" height="7"></rect>
@@ -45,7 +51,7 @@
         <span class="nav-label">Tableau de Bord</span>
       </a>
 
-      <a routerLink="/products" routerLinkActive="active" class="nav-item">
+      <a routerLink="/products" routerLinkActive="active" (click)="closeMobileMenu()" class="nav-item">
         <svg class="nav-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
           stroke-linecap="round" stroke-linejoin="round">
           <path
@@ -57,7 +63,7 @@
         <span class="nav-label">Produits</span>
       </a>
 
-      <a routerLink="/categories" routerLinkActive="active" class="nav-item">
+      <a routerLink="/categories" routerLinkActive="active" (click)="closeMobileMenu()" class="nav-item">
         <svg class="nav-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
           stroke-linecap="round" stroke-linejoin="round">
           <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path>
@@ -66,7 +72,7 @@
         <span class="nav-label">Catégories</span>
       </a>
 
-      <a routerLink="/customers" routerLinkActive="active" class="nav-item">
+      <a routerLink="/customers" routerLinkActive="active" (click)="closeMobileMenu()" class="nav-item">
         <svg class="nav-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
           stroke-linecap="round" stroke-linejoin="round">
           <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
@@ -77,7 +83,7 @@
         <span class="nav-label">Clients</span>
       </a>
 
-      <a routerLink="/orders" routerLinkActive="active" class="nav-item">
+      <a routerLink="/orders" routerLinkActive="active" (click)="closeMobileMenu()" class="nav-item">
         <svg class="nav-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
           stroke-linecap="round" stroke-linejoin="round">
           <circle cx="9" cy="21" r="1"></circle>
@@ -87,7 +93,7 @@
         <span class="nav-label">Commandes</span>
       </a>
 
-      <a routerLink="/order-items" routerLinkActive="active" class="nav-item">
+      <a routerLink="/order-items" routerLinkActive="active" (click)="closeMobileMenu()" class="nav-item">
         <svg class="nav-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
           stroke-linecap="round" stroke-linejoin="round">
           <line x1="8" y1="6" x2="21" y2="6"></line>
@@ -100,7 +106,7 @@
         <span class="nav-label">Lignes de commande</span>
       </a>
 
-      <a routerLink="/payments" routerLinkActive="active" class="nav-item">
+      <a routerLink="/payments" routerLinkActive="active" (click)="closeMobileMenu()" class="nav-item">
         <svg class="nav-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
           stroke-linecap="round" stroke-linejoin="round">
           <rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect>
@@ -124,6 +130,13 @@
     <!-- Top Header -->
     <header class="topbar">
       <div class="topbar-left">
+        <button class="mobile-menu-btn" type="button" (click)="toggleMobileMenu()" aria-label="Menu principal">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="3" y1="12" x2="21" y2="12"></line>
+            <line x1="3" y1="6" x2="21" y2="6"></line>
+            <line x1="3" y1="18" x2="21" y2="18"></line>
+          </svg>
+        </button>
         <span class="breadcrumb-item">Administration</span>
         <span class="breadcrumb-separator">/</span>
         <span class="breadcrumb-current">Plateforme E-Commerce</span>

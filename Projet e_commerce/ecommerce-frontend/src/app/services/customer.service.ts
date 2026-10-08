@@ -3,6 +3,8 @@ import { HttpClient } from '@angular/common/http';
 import { Observable, of, tap } from 'rxjs';
 import { Customer } from '../models/customer';
 
+import { getApiBaseUrl } from '../config/api.config';
+
 export type { Customer };
 
 @Injectable({
@@ -10,7 +12,7 @@ export type { Customer };
 })
 export class CustomerService {
 
-  private apiUrl = 'http://127.0.0.1:8081/api/customers';
+  private apiUrl = `${getApiBaseUrl()}/customers`;
   private cache: Customer[] | null = null;
 
   constructor(private http: HttpClient) { }

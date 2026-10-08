@@ -3,6 +3,8 @@ import { HttpClient } from '@angular/common/http';
 import { Observable, of, tap } from 'rxjs';
 import { Payment } from '../models/payment';
 
+import { getApiBaseUrl } from '../config/api.config';
+
 export type { Payment };
 
 @Injectable({
@@ -10,7 +12,7 @@ export type { Payment };
 })
 export class PaymentService {
 
-  private apiUrl = 'http://127.0.0.1:8081/api/payments';
+  private apiUrl = `${getApiBaseUrl()}/payments`;
   private cache: Payment[] | null = null;
 
   constructor(private http: HttpClient) { }

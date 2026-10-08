@@ -16,11 +16,22 @@
   --radius-lg: 0.75rem;
 }
 
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
 body {
   margin: 0;
+  padding: 0;
+  max-width: 100%;
+  overflow-x: hidden;
   font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
   background-color: #F8FAFC;
   color: #111827;
+  -webkit-font-smoothing: antialiased;
 }
 
 /* Modal / Popup - Fond blanc opaque garanti */
@@ -28,4 +39,88 @@ body {
   background-color: #FFFFFF !important;
   background: #FFFFFF !important;
   opacity: 1 !important;
+}
+
+/* Responsive Tables & Cards */
+.card {
+  max-width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Responsive Containers & Forms */
+@media (max-width: 768px) {
+  .container {
+    padding: 1rem !important;
+  }
+
+  .header-section {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 0.75rem !important;
+  }
+
+  .modal {
+    width: 92% !important;
+    margin: 1rem auto !important;
+    max-height: 90vh !important;
+    overflow-y: auto !important;
+  }
+
+  .form-row {
+    flex-direction: column !important;
+    gap: 0.5rem !important;
+  }
+
+  .entity-search,
+  .product-search {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    width: 100% !important;
+  }
+
+  .entity-search input,
+  .product-search input {
+    min-width: 0 !important;
+    width: 100% !important;
+  }
+
+  .entity-search label,
+  .product-search label {
+    width: 100% !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .container {
+    padding: 0.75rem !important;
+  }
+
+  .btn {
+    padding: 0.5rem 0.75rem !important;
+    font-size: 0.82rem !important;
+  }
+}
+
+/* Indicateur de défilement horizontal visible et fluide */
+.card::-webkit-scrollbar,
+.table-responsive::-webkit-scrollbar {
+  height: 6px;
+}
+
+.card::-webkit-scrollbar-track,
+.table-responsive::-webkit-scrollbar-track {
+  background: #f1f5f9;
+  border-radius: 4px;
+}
+
+.card::-webkit-scrollbar-thumb,
+.table-responsive::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+
+.card::-webkit-scrollbar-thumb:hover,
+.table-responsive::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
 }

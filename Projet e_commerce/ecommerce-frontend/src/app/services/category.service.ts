@@ -3,6 +3,8 @@ import { HttpClient } from '@angular/common/http';
 import { Observable, of, tap } from 'rxjs';
 import { Category } from '../models/category';
 
+import { getApiBaseUrl } from '../config/api.config';
+
 export type { Category };
 
 @Injectable({
@@ -10,7 +12,7 @@ export type { Category };
 })
 export class CategoryService {
 
-  private apiUrl = 'http://127.0.0.1:8081/api/categories';
+  private apiUrl = `${getApiBaseUrl()}/categories`;
   private cache: Category[] | null = null;
 
   constructor(private http: HttpClient) { }

@@ -16,43 +16,14 @@ resource "docker_volume" "mysql_data" {
 }
 
 # =========================================================
-# 3. Images Docker (Build multi-stage automatique)
-# =========================================================
-
-# Image MySQL
-resource "docker_image" "mysql" {
-  name = "ecommerce-mysql:latest"
-  build {
-    context    = abspath("${path.module}/${var.mysql_dockerfile_dir}")
-    dockerfile = "Dockerfile"
-  }
-}
-
-# Image Backend Spring Boot
-resource "docker_image" "backend" {
-  name = "ecommerce-backend:latest"
-  build {
-    context    = abspath("${path.module}/${var.backend_context_dir}")
-    dockerfile = abspath("${path.module}/${var.spring_dockerfile_path}")
-  }
-}
-
-# Image Frontend Angular
-resource "docker_image" "frontend" {
-  name = "ecommerce-frontend:latest"
-  build {
-    context    = abspath("${path.module}/${var.frontend_context_dir}")
-    dockerfile = abspath("${path.module}/${var.angular_dockerfile_path}")
-  }
-}
-
-# =========================================================
-# 4. Conteneur MySQL (Base de données)
+# 3. Conteneur MySQL (Base de données)
+# NOTE: L'image doit être buildée au préalable :
+#   docker build -t ecommerce-mysql:latest ./docker/MySQL
 # =========================================================
 
 resource "docker_container" "mysql" {
   name    = "ecommerce-mysql"
-  image   = docker_image.mysql.image_id
+  image   = "ecommerce-mysql:latest"
   restart = "always"
 
   networks_advanced {
@@ -62,7 +33,7 @@ resource "docker_container" "mysql" {
 
   ports {
     internal = 3306
-    external = var.mysql_port
+    external = 3307
   }
 
   env = [
@@ -85,12 +56,14 @@ resource "docker_container" "mysql" {
 }
 
 # =========================================================
-# 5. Conteneur Spring Boot Backend
+# 4. Conteneur Spring Boot Backend
+# NOTE: L'image doit être buildée au préalable :
+#   docker build -t ecommerce-backend:latest -f "docker/Spring Boot/Dockerfile" "./Projet e_commerce/ecommerce"
 # =========================================================
 
 resource "docker_container" "backend" {
   name    = "ecommerce-backend"
-  image   = docker_image.backend.image_id
+  image   = "ecommerce-backend:latest"
   restart = "always"
 
   networks_advanced {
@@ -111,17 +84,18 @@ resource "docker_container" "backend" {
     "SPRING_JPA_HIBERNATE_DDL_AUTO=update"
   ]
 
-  # Dépendance explicite : attend la création du conteneur MySQL
   depends_on = [docker_container.mysql]
 }
 
 # =========================================================
-# 6. Conteneur Angular Frontend (Nginx SPA + Reverse Proxy)
+# 5. Conteneur Angular Frontend (Nginx SPA + Reverse Proxy)
+# NOTE: L'image doit être buildée au préalable :
+#   docker build -t ecommerce-frontend:latest -f "docker/Angular/Dockerfile" "./Projet e_commerce/ecommerce-frontend"
 # =========================================================
 
 resource "docker_container" "frontend" {
   name    = "ecommerce-frontend"
-  image   = docker_image.frontend.image_id
+  image   = "ecommerce-frontend:latest"
   restart = "always"
 
   networks_advanced {
@@ -134,6 +108,5 @@ resource "docker_container" "frontend" {
     external = var.frontend_port
   }
 
-  # Dépendance explicite : attend le backend
   depends_on = [docker_container.backend]
 }
