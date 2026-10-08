@@ -52,11 +52,11 @@ resource "docker_image" "frontend" {
 
 resource "docker_container" "mysql" {
   name    = "ecommerce-mysql"
-  image   = docker_image.mysql.image_uri
+  image   = docker_image.mysql.image_id
   restart = "always"
 
   networks_advanced {
-    name = docker_network.ecommerce_net.name
+    name    = docker_network.ecommerce_net.name
     aliases = ["mysql", "ecommerce-mysql"]
   }
 
@@ -82,14 +82,6 @@ resource "docker_container" "mysql" {
     container_path = "/docker-entrypoint-initdb.d/01-init.sql"
     read_only      = true
   }
-
-  healthcheck {
-    test         = ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${var.db_password}"]
-    interval     = "10s"
-    timeout      = "5s"
-    retries      = 5
-    start_period = "15s"
-  }
 }
 
 # =========================================================
@@ -98,11 +90,11 @@ resource "docker_container" "mysql" {
 
 resource "docker_container" "backend" {
   name    = "ecommerce-backend"
-  image   = docker_image.backend.image_uri
+  image   = docker_image.backend.image_id
   restart = "always"
 
   networks_advanced {
-    name = docker_network.ecommerce_net.name
+    name    = docker_network.ecommerce_net.name
     aliases = ["backend", "ecommerce-backend"]
   }
 
@@ -129,11 +121,11 @@ resource "docker_container" "backend" {
 
 resource "docker_container" "frontend" {
   name    = "ecommerce-frontend"
-  image   = docker_image.frontend.image_uri
+  image   = docker_image.frontend.image_id
   restart = "always"
 
   networks_advanced {
-    name = docker_network.ecommerce_net.name
+    name    = docker_network.ecommerce_net.name
     aliases = ["frontend", "ecommerce-frontend"]
   }
 
